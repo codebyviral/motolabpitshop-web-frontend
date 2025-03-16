@@ -1,23 +1,27 @@
-import React from 'react';
+import React from "react";
 
 const Hero = () => {
   return (
     <div className="bg-gray-100 py-16">
       <div className="container mx-auto px-4 flex items-center">
         <div className="w-1/2">
-          <h1 className="text-5xl font-bold mb-4">The Premium Motorcycle Gear</h1>
+          <h1 className="text-5xl font-bold mb-4">
+            The Premium Motorcycle Gear
+          </h1>
           <p className="text-gray-600 mb-8">
-            High-quality motorcycle parts, accessories, and apparel for riders who demand the best. MotoLab Pit Shop - your one-stop destination for all your motorcycle needs.
+            High-quality motorcycle parts, accessories, and apparel for riders
+            who demand the best. MotoLab Pit Shop - your one-stop destination
+            for all your motorcycle needs.
           </p>
           <button className="bg-black text-white py-3 px-8 font-medium hover:bg-gray-800 transition duration-300">
             SHOP NOW
           </button>
         </div>
-        
+
         <div className="w-1/2">
-          <img 
-            src="/images/motorcycle-gear.jpg" 
-            alt="Premium Motorcycle Gear" 
+          <img
+            src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=3000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Premium Motorcycle Gear"
             className="w-full object-cover"
           />
         </div>
