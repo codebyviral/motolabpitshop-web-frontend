@@ -1,32 +1,41 @@
-import React from "react";
-import { FaSearch, FaUser, FaHeart, FaShoppingCart } from "react-icons/fa";
+import React, { useState } from "react";
+import {
+  FaSearch,
+  FaUser,
+  FaHeart,
+  FaShoppingCart,
+  FaBars,
+  FaTimes,
+  FaChevronDown,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+
   return (
-    <header>
-      {/* Top bar */}
-      {/* <div className="bg-white py-2 px-4 flex justify-between items-center text-sm">
-        <div>
-          <span>Free Express Shipping on orders ₹200! </span>
-          <a href="#" className="text-yellow-500 hover:underline">Click and Shop Now.</a>
-        </div>
-        <div className="flex items-center gap-4">
-          <a href="#" className="hover:underline">Order Tracking</a>
-          <div className="flex items-center gap-2">
-            <button className="hover:underline">English</button>
-            <span>|</span>
-            <button className="hover:underline">USD</button>
-          </div>
-        </div>
-      </div> */}
-
+    <header className="w-full shadow-md">
       {/* Main header */}
-      <div className="bg-white py-4 px-4 flex justify-between items-center">
-        <div className="text-2xl font-bold">
-          <a href="/">MotoLab</a>
+      <div className="bg-white py-3 px-4 md:px-6 lg:px-8 flex flex-wrap justify-between items-center gap-4">
+        {/* Logo */}
+        <div className="text-2xl font-bold order-1">
+          <a href="/" className="flex items-center">
+            MotoLab
+          </a>
         </div>
 
-        <div className="flex-1 max-w-xl mx-4">
+        {/* Mobile menu button */}
+        <button
+          className="md:hidden order-3"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          {mobileMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+        </button>
+
+        {/* Search bar */}
+        <div className="w-full md:w-auto md:flex-1 max-w-xl order-4 md:order-2 mt-4 md:mt-0 md:mx-4">
           <div className="relative">
             <input
               type="text"
@@ -37,55 +46,80 @@ const Header = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <select className="py-2 px-4 border rounded-md appearance-none pr-8">
-              <option>Select Category</option>
-              <option>Helmets</option>
-              <option>Jackets</option>
-              <option>Gloves</option>
-              <option>Boots</option>
-              <option>Parts</option>
-            </select>
-            <span className="absolute right-2 top-3">▼</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button>
-              <FaUser size={20} />
-            </button>
-            <button className="relative">
-              <FaHeart size={20} />
-              <span className="absolute -top-2 -right-2 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                0
-              </span>
-            </button>
-            <button className="relative">
-              <FaShoppingCart size={20} />
-              <span className="absolute -top-2 -right-2 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                0
-              </span>
-            </button>
-          </div>
+        {/* Action buttons */}
+        <div className="flex items-center gap-4 order-2 md:order-3 ml-auto md:ml-0 relative">
+          <button
+            onClick={() => navigate("/login")}
+            className="hidden sm:block"
+          >
+            <FaUser size={20} />
+          </button>
+          <button className="relative">
+            <FaHeart size={20} />
+            <span className="absolute -top-1.5 -right-1.5 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              0
+            </span>
+          </button>
+          <button className="relative">
+            <FaShoppingCart size={20} />
+            <span className="absolute -top-1.5 -right-1.5 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              0
+            </span>
+          </button>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="bg-yellow-400 py-3 px-4 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 bg-white py-2 px-4 rounded">
-            <span>≡</span>
-            <span>All Categories</span>
-          </button>
+      <nav className="bg-yellow-400 py-3 px-4 md:px-6 lg:px-8">
+        <div className="flex flex-wrap justify-between items-center">
+          {/* Categories dropdown */}
+          <div className="relative z-10">
+            <button
+              className="flex items-center gap-2 bg-white py-2 px-4 rounded"
+              onClick={() => setCategoryMenuOpen(!categoryMenuOpen)}
+            >
+              <span className="font-medium">Categories</span>
+              <FaChevronDown
+                size={12}
+                className={
+                  categoryMenuOpen
+                    ? "transform rotate-180 transition-transform"
+                    : "transition-transform"
+                }
+              />
+            </button>
 
-          <div className="flex items-center gap-6 ml-6">
-            <a href="#" className="font-medium flex items-center">
-              Home{" "}
+            {/* Categories dropdown menu */}
+            {categoryMenuOpen && (
+              <div className="absolute top-full left-0 mt-1 w-48 bg-white shadow-md rounded py-2 z-20">
+                <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                  Helmets
+                </a>
+                <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                  Jackets
+                </a>
+                <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                  Gloves
+                </a>
+                <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                  Boots
+                </a>
+                <a href="#" className="block px-4 py-2 hover:bg-gray-100">
+                  Parts
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Nav links - desktop */}
+          <div className="hidden md:flex items-center gap-6 ml-6 flex-grow">
+            <a href="#" className="font-medium">
+              Home
             </a>
             <a href="#" className="font-medium">
               Shop
             </a>
-            <a href="#" className="font-medium flex items-center">
+            <a href="#" className="font-medium">
               Pages
             </a>
             <a href="#" className="font-medium">
@@ -98,11 +132,47 @@ const Header = () => {
               Contact
             </a>
           </div>
+
+          {/* Shop now button */}
+          <button className="bg-white py-2 px-4 md:px-6 rounded font-medium ml-auto md:ml-0">
+            Shop now
+          </button>
         </div>
 
-        <button className="bg-white py-2 px-6 rounded font-medium">
-          Shop now
-        </button>
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-4 py-2 bg-white rounded shadow-md">
+            <div className="flex flex-col">
+              <a href="#" className="px-4 py-2 hover:bg-gray-100 font-medium">
+                Home
+              </a>
+              <a href="#" className="px-4 py-2 hover:bg-gray-100 font-medium">
+                Shop
+              </a>
+              <a href="#" className="px-4 py-2 hover:bg-gray-100 font-medium">
+                Pages
+              </a>
+              <a href="#" className="px-4 py-2 hover:bg-gray-100 font-medium">
+                About
+              </a>
+              <a href="#" className="px-4 py-2 hover:bg-gray-100 font-medium">
+                Blog
+              </a>
+              <a href="#" className="px-4 py-2 hover:bg-gray-100 font-medium">
+                Contact
+              </a>
+              <div className="px-4 py-2 border-t">
+                <button
+                  onClick={() => navigate("/login")}
+                  className="flex items-center gap-2"
+                >
+                  <FaUser size={16} />
+                  <span>Login</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
     </header>
   );
