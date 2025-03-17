@@ -1,64 +1,80 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Header, Footer } from "../components/index";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const LoginForm = () => {
+const SignupForm = () => {
   const navigate = useNavigate();
-
-  const { storeUserId, storeTokenInLocalStorage, storeisAdminState } =
-    useAuthContext();
-
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+
+  const signupUrl = `${import.meta.env.VITE_BACKEND}/api/auth/signup`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const loginUrl = `${import.meta.env.VITE_BACKEND}/api/auth/login`;
-
     try {
       const res = await axios.post(
-        loginUrl,
-        { email, password },
+        signupUrl,
+        {
+          fullName,
+          email,
+          password,
+          isAdmin: false,
+        },
         {
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
+      console.log(res);
       if (res.status == 200) {
-        toast.success("Login Successful!");
-        navigate("/");
+        toast.success(`Signup Successful!`);
+        navigate("/login");
       }
-      storeTokenInLocalStorage(res.data.token);
-      storeUserId(res.data.userId);
-      storeisAdminState(res.data.isAdmin);
     } catch (error) {
-      console.log(`Error during login: ${error}`);
+      console.log("Error during signup", error);
     }
   };
+
+  useEffect(() => {}, []);
 
   return (
     <>
       <Header />
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8 m-4">
-          {/* Login Header */}
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Login to Your Account
+              Create an Account
             </h2>
             <p className="text-gray-600 text-sm">
-              Access premium motorcycle gear and manage your orders
+              Join us and start your journey today
             </p>
           </div>
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit}>
+            {/* Full Name Field */}
+            <div className="mb-5">
+              <label
+                htmlFor="fullName"
+                className="block text-gray-700 font-medium mb-2"
+              >
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="fullName"
+                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                placeholder="Enter your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
+
             {/* Email Field */}
             <div className="mb-5">
               <label
@@ -97,42 +113,22 @@ const LoginForm = () => {
               />
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between mb-6">
-              <label className="flex items-center text-gray-600 text-sm">
-                <input
-                  type="checkbox"
-                  className="mr-2 h-4 w-4 accent-yellow-500"
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                />
-                Remember me
-              </label>
-              <a
-                href="#"
-                className="text-yellow-500 text-sm font-medium hover:text-yellow-600 hover:underline"
-              >
-                Forgot password?
-              </a>
-            </div>
-
-            {/* Login Button */}
+            {/* Signup Button */}
             <button
               type="submit"
               className="w-full bg-gray-800 text-white py-3 rounded-md font-medium uppercase tracking-wide hover:bg-gray-900 transition duration-200"
             >
-              Login
+              Sign Up
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center my-6">
             <div className="flex-grow border-t border-gray-300"></div>
             <span className="flex-shrink mx-4 text-gray-600 text-sm">OR</span>
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
 
-          {/* Google Login Button */}
+          {/* Google Signup Button */}
           <button
             type="button"
             className="w-full flex justify-center items-center bg-white border border-gray-300 rounded-md py-3 px-4 text-gray-700 hover:bg-gray-50 transition duration-200"
@@ -159,19 +155,18 @@ const LoginForm = () => {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Continue with Google
+            Sign up with Google
           </button>
 
-          {/* Register Link */}
           <div className="text-center mt-6">
             <span className="text-gray-600 text-sm">
-              Don't have an account?
+              Already have an account?
             </span>
             <a
-              href="/signup"
+              href="/login"
               className="text-yellow-500 text-sm font-medium ml-1 hover:text-yellow-600 hover:underline"
             >
-              Sign up
+              Log in
             </a>
           </div>
         </div>
@@ -181,4 +176,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default SignupForm;

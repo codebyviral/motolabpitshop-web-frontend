@@ -11,7 +11,7 @@ const Hero = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 2000, // Auto-scrolls every 2 seconds
+    autoplaySpeed: 2500, // Auto-scrolls every 2 seconds
     arrows: false,
     pauseOnHover: false, // Ensures continuous auto-scrolling
   };
@@ -37,9 +37,16 @@ const Hero = () => {
             High-quality motorcycle parts, accessories, and apparel for riders
             who demand the best. MotoLab Pit Shop - your one-stop destination.
           </p>
-          <button className="bg-black text-white py-3 px-8 font-medium rounded-full transition duration-300 shadow-lg">
-            SHOP NOW
-          </button>
+          <a
+            href="/view-all-products"
+            class="relative inline-block px-4 py-2 font-medium group"
+          >
+            <span class="absolute inset-0 w-full h-full transition duration-200 ease-out transform translate-x-1 translate-y-1 bg-black group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
+            <span class="absolute inset-0 w-full h-full bg-white border-2 border-black group-hover:bg-black"></span>
+            <span class="relative text-black group-hover:text-white">
+              SHOP NOW
+            </span>
+          </a>
         </div>
 
         {/* Carousel Section */}

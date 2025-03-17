@@ -4,5 +4,6 @@ import Features from "./Features";
 import FeaturedProducts from "./FeaturedProducts";
 import NewsSection from "./NewsSection";
 import ProductCard from "./ProductCard"
+import Footer from "./Footer"
 
-export { Header, Hero, Features, FeaturedProducts, NewsSection, ProductCard };
+export { Header, Hero, Features, FeaturedProducts, NewsSection, ProductCard, Footer };

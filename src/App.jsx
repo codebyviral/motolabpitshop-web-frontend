@@ -1,17 +1,39 @@
-import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
-import { Home, LoginForm } from "./Pages/index.js";
-import "./App.css";
+/* eslint-disable no-unused-vars */
+import { Route, Routes } from "react-router-dom";
+import {
+  Home,
+  LoginForm,
+  SignupForm,
+  AboutUs,
+  AllProducts,
+  Profile,
+} from "./Pages/index.js";
+import { ToastContainer, toast } from "react-toastify";
 
 function App() {
   return (
     <>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="App">
-        <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginForm />} />
-          </Routes>
-        </Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignupForm />} />
+          <Route path="/your-account" element={<Profile />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/view-all-products" element={<AllProducts />} />
+        </Routes>
       </div>
     </>
   );

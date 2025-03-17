@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaSearch,
   FaUser,
+  FaUserCheck,
   FaHeart,
   FaShoppingCart,
   FaBars,
@@ -9,11 +10,22 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
 
 const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+
+  const { isLoggedIn } = useAuthContext();
+
+  const handleRedirect = () => {
+    if (isLoggedIn) {
+      navigate("/your-account");
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <header className="w-full shadow-md">
@@ -22,7 +34,7 @@ const Header = () => {
         {/* Logo */}
         <div className="text-2xl font-bold order-1">
           <a href="/" className="flex items-center">
-            MotoLab
+            Motolab PitShop
           </a>
         </div>
 
@@ -48,11 +60,16 @@ const Header = () => {
 
         {/* Action buttons */}
         <div className="flex items-center gap-4 order-2 md:order-3 ml-auto md:ml-0 relative">
-          <button
-            onClick={() => navigate("/login")}
-            className="hidden sm:block"
-          >
-            <FaUser size={20} />
+          <button onClick={() => handleRedirect()} className="hidden sm:block">
+            {isLoggedIn ? (
+              <>
+                <FaUserCheck size={20} />
+              </>
+            ) : (
+              <>
+                <FaUser size={20} />
+              </>
+            )}
           </button>
           <button className="relative">
             <FaHeart size={20} />
@@ -75,7 +92,7 @@ const Header = () => {
           {/* Categories dropdown */}
           <div className="relative z-10">
             <button
-              className="flex items-center gap-2 bg-white py-2 px-4 rounded"
+              className="flex items-center gap-2 bg-white py-2 px-4"
               onClick={() => setCategoryMenuOpen(!categoryMenuOpen)}
             >
               <span className="font-medium">Categories</span>
@@ -113,16 +130,13 @@ const Header = () => {
 
           {/* Nav links - desktop */}
           <div className="hidden md:flex items-center gap-6 ml-6 flex-grow">
-            <a href="#" className="font-medium">
+            <a href="/" className="font-medium">
               Home
             </a>
             <a href="#" className="font-medium">
               Shop
             </a>
-            <a href="#" className="font-medium">
-              Pages
-            </a>
-            <a href="#" className="font-medium">
+            <a href="/about-us" className="font-medium">
               About
             </a>
             <a href="#" className="font-medium">
@@ -132,11 +146,6 @@ const Header = () => {
               Contact
             </a>
           </div>
-
-          {/* Shop now button */}
-          <button className="bg-white py-2 px-4 md:px-6 rounded font-medium ml-auto md:ml-0">
-            Shop now
-          </button>
         </div>
 
         {/* Mobile menu */}
