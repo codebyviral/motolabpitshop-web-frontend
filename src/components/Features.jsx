@@ -18,7 +18,7 @@ const Features = () => {
     {
       icon: FaTruck,
       title: "Free Shipping",
-      description: "When ordering over ₹100",
+      description: "When ordering over $100",
     },
     {
       icon: FaExchangeAlt,

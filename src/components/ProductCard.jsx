@@ -38,7 +38,7 @@ const ProductCard = ({ product }) => {
         <div className="text-sm text-gray-500 mb-1">{category}</div>
         <h3 className="font-medium text-lg mb-2">{name}</h3>
         <div className="flex justify-between items-center">
-          <div className="font-bold">₹{price.toFixed(2)}</div>
+          <div className="font-bold">${price.toFixed(2)}</div>
           <div className="flex">
             {[1, 2, 3, 4, 5].map((star) => (
               <span key={star} className="text-yellow-500">★</span>

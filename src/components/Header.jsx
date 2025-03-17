@@ -11,8 +11,10 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
+import axios from "axios";
 
 const Header = () => {
+  const backendUrl = import.meta.env.VITE_BACKEND;
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
@@ -26,6 +28,21 @@ const Header = () => {
       navigate("/login");
     }
   };
+
+  const googleLoginSuccess = async () => {
+    try {
+      const res = await axios.get(`${backendUrl}/login/success`, {
+        withCredentials: true,
+      });
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    googleLoginSuccess();
+  });
 
   return (
     <header className="w-full shadow-md">
@@ -172,11 +189,20 @@ const Header = () => {
               </a>
               <div className="px-4 py-2 border-t">
                 <button
-                  onClick={() => navigate("/login")}
+                  onClick={() => handleRedirect()}
                   className="flex items-center gap-2"
                 >
-                  <FaUser size={16} />
-                  <span>Login</span>
+                  {isLoggedIn ? (
+                    <>
+                      <FaUserCheck size={16} />
+                      <span>Your Account</span>
+                    </>
+                  ) : (
+                    <>
+                      <FaUser size={16} />
+                      <span>Login</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>

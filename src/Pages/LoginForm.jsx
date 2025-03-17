@@ -8,6 +8,8 @@ import { useAuthContext } from "../context/AuthContext";
 const LoginForm = () => {
   const navigate = useNavigate();
 
+  const backendUrl = `${import.meta.env.VITE_BACKEND}`;
+
   const { storeUserId, storeTokenInLocalStorage, storeisAdminState } =
     useAuthContext();
 
@@ -18,7 +20,7 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const loginUrl = `${import.meta.env.VITE_BACKEND}/api/auth/login`;
+    const loginUrl = `${backendUrl}/api/auth/login`;
 
     try {
       const res = await axios.post(
@@ -39,6 +41,16 @@ const LoginForm = () => {
       storeisAdminState(res.data.isAdmin);
     } catch (error) {
       console.log(`Error during login: ${error}`);
+      toast.error("Internal Server Error!");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      window.open(`${backendUrl}/auth/google/callback`, "_self");
+    } catch (error) {
+      console.log(error);
+      toast.error(error);
     }
   };
 
@@ -134,6 +146,7 @@ const LoginForm = () => {
 
           {/* Google Login Button */}
           <button
+            onClick={handleGoogleLogin}
             type="button"
             className="w-full flex justify-center items-center bg-white border border-gray-300 rounded-md py-3 px-4 text-gray-700 hover:bg-gray-50 transition duration-200"
           >

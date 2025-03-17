@@ -6,6 +6,7 @@ import {
   SignupForm,
   AboutUs,
   AllProducts,
+  Logout,
   Profile,
 } from "./Pages/index.js";
 import { ToastContainer, toast } from "react-toastify";
@@ -29,6 +30,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/logout" element={<Logout />} />
           <Route path="/signup" element={<SignupForm />} />
           <Route path="/your-account" element={<Profile />} />
           <Route path="/about-us" element={<AboutUs />} />

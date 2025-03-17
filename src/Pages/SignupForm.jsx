@@ -10,7 +10,9 @@ const SignupForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const signupUrl = `${import.meta.env.VITE_BACKEND}/api/auth/signup`;
+  const backendUrl = `${import.meta.env.VITE_BACKEND}`;
+
+  const signupUrl = `${backendUrl}/api/auth/signup`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +41,14 @@ const SignupForm = () => {
     }
   };
 
-  useEffect(() => {}, []);
+  const handleGoogleSignup = async () => {
+    try {
+      window.open(`${backendUrl}/auth/google/callback`, "_self");
+    } catch (error) {
+      console.log(error);
+      toast.error(error);
+    }
+  };
 
   return (
     <>
@@ -130,6 +139,7 @@ const SignupForm = () => {
 
           {/* Google Signup Button */}
           <button
+            onClick={handleGoogleSignup}
             type="button"
             className="w-full flex justify-center items-center bg-white border border-gray-300 rounded-md py-3 px-4 text-gray-700 hover:bg-gray-50 transition duration-200"
           >
