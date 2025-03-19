@@ -32,16 +32,25 @@ const LoginForm = () => {
           },
         }
       );
-      if (res.status == 200) {
+
+      if (res.status === 200) {
         toast.success("Login Successful!");
+        storeTokenInLocalStorage(res.data.token);
+        storeUserId(res.data.userId);
+        storeisAdminState(res.data.isAdmin);
         navigate("/");
       }
-      storeTokenInLocalStorage(res.data.token);
-      storeUserId(res.data.userId);
-      storeisAdminState(res.data.isAdmin);
     } catch (error) {
+      if (error.response) {
+        if (error.response.status === 400) {
+          toast.error("Incorrect credentials");
+        } else {
+          toast.error("Something went wrong!");
+        }
+      } else {
+        toast.error("Internal Server Error!");
+      }
       console.log(`Error during login: ${error}`);
-      toast.error("Internal Server Error!");
     }
   };
 

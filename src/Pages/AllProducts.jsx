@@ -215,7 +215,7 @@ const AllProducts = () => {
 
           {/* Product Count */}
           <div className="mb-6 text-gray-700">
-            <p>{sortedProducts.length} products found</p>
+            <p>{sortedProducts.length} products available</p>
           </div>
 
           {/* Products Grid */}

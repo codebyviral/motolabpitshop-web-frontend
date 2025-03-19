@@ -77,7 +77,7 @@ const Profile = () => {
           <h1 className="text-3xl font-bold text-gray-800">My Account</h1>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600 flex items-center"
+            className="px-4 py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600 flex items-center"
           >
             Logout
           </button>

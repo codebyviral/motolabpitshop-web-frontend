@@ -1,47 +1,28 @@
 import React from "react";
 import ProductCard from "./ProductCard";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const FeaturedProducts = () => {
+  const [products, setProducts] = useState([]);
   const navigate = useNavigate();
-  const products = [
-    {
-      id: 1,
-      name: "AGV K6 Helmet",
-      category: "Helmets",
-      price: 499.99,
-      image:
-        "https://dainese-cdn.thron.com/delivery/public/image/dainese/0b132a07-d6d7-405a-8569-4bb800e26b57/px6qct/std/450x450/2118395001_025_1.png?format=webp&quality=auto-medium&dpr=200",
-      isNew: true,
-    },
-    {
-      id: 2,
-      name: "Dainese Leather Jacket",
-      category: "Apparel",
-      price: 649.99,
-      image:
-        "https://static.wixstatic.com/media/09a894_beb32c944f2f4ff1b1e81291cbfb9a33~mv2.png/v1/fill/w_1026,h_1026,al_c,q_90,usm_0.66_1.00_0.01,enc_avif,quality_auto/09a894_beb32c944f2f4ff1b1e81291cbfb9a33~mv2.png",
-      isNew: true,
-    },
-    {
-      id: 3,
-      name: "Akrapovič Exhaust System",
-      category: "Parts",
-      price: 899.99,
-      image:
-        "https://royalpiston.in/cdn/shop/files/71f0CamGF7L.jpg?v=1712527958&width=3840",
-      isNew: false,
-    },
-    {
-      id: 4,
-      name: "Alpinestars Tech 10 Boots",
-      category: "Footwear",
-      price: 599.99,
-      image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLSqlXNAwjyEvC2Hhl1z-JFaFKJRfdjVVdjW61bWjIGw&usqp=CAE&s",
-      isNew: false,
-    },
-  ];
+
+  const fetchProducts = async () => {
+    const backendUrl = import.meta.env.VITE_BACKEND;
+    try {
+      const { data } = await axios.get(
+        `${backendUrl}/api/get/featured-products`
+      );
+      setProducts(data.featuredProducts);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
     <>
@@ -55,8 +36,8 @@ const FeaturedProducts = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products?.map((product, index) => (
+              <ProductCard key={index} product={product} />
             ))}
           </div>
 

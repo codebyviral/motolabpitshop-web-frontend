@@ -8,6 +8,7 @@ import {
   AllProducts,
   Logout,
   Profile,
+  ViewProduct
 } from "./Pages/index.js";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -35,6 +36,7 @@ function App() {
           <Route path="/your-account" element={<Profile />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/view-all-products" element={<AllProducts />} />
+          <Route path="/view-product/:id" element={<ViewProduct />} />
         </Routes>
       </div>
     </>

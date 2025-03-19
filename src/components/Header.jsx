@@ -41,7 +41,7 @@ const Header = () => {
   };
 
   useEffect(() => {
-    googleLoginSuccess();
+    // googleLoginSuccess();
   });
 
   return (
@@ -107,12 +107,12 @@ const Header = () => {
       <nav className="bg-yellow-400 py-3 px-4 md:px-6 lg:px-8">
         <div className="flex flex-wrap justify-between items-center">
           {/* Categories dropdown */}
-          <div className="relative z-10">
+          <div className="relative z-20">
             <button
               className="flex items-center gap-2 bg-white py-2 px-4"
               onClick={() => setCategoryMenuOpen(!categoryMenuOpen)}
             >
-              <span className="font-medium">Categories</span>
+              <span className="font-medium text-sm">Categories</span>
               <FaChevronDown
                 size={12}
                 className={

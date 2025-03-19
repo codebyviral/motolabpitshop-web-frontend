@@ -5,5 +5,6 @@ import AboutUs from "./AboutUs"
 import AllProducts from "./AllProducts"
 import Profile from "./Profile"
 import Logout from "./Logout"
+import ViewProduct from "./ViewProduct"
 
-export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout }
+export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout, ViewProduct }
