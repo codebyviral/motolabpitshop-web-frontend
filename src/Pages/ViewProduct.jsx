@@ -3,6 +3,7 @@ import { Footer, Header } from "../components";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import Razorpay from "razorpay";
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -25,6 +26,7 @@ const ViewProduct = () => {
         productId: id,
       });
       if (data.success && data.product) {
+        console.log(data);
         setProduct(data.product);
       } else {
         setError(true);
@@ -39,32 +41,46 @@ const ViewProduct = () => {
 
   const checkout = async () => {
     if (!product) return toast.error(`Product not found`);
+
+    const {
+      data: { key },
+    } = await axios.get(`${backendUrl}/api/get-key`);
+
+    console.log(key);
+
     try {
-      const { data } = await axios.post(`${backendUrl}/api/checkout`, {
+      const {
+        data: { order },
+      } = await axios.post(`${backendUrl}/api/checkout`, {
         amount: product.price,
       });
       var options = {
-        "key": "YOUR_KEY_ID", // Enter the Key ID generated from the Dashboard
-        "amount": "50000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-        "currency": "INR",
-        "name": "Acme Corp", //your business name
-        "description": "Test Transaction",
-        "image": "https://example.com/your_logo",
-        "order_id": "order_9A33XWu170gUtm", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        "callback_url": "https://eneqd3r9zrjok.x.pipedream.net/",
-        "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
-            "name": "Gaurav Kumar", //your customer's name
-            "email": "gaurav.kumar@example.com",
-            "contact": "9000090000" //Provide the customer's phone number for better conversion rates 
+        key: await key,
+        amount: order.amount,
+        currency: "INR",
+        name: "Motolab PitShop",
+        description: product.description,
+        image: "https://i.ibb.co/2178bTsx/motolab.jpg",
+        order_id: order.id,
+        callback_url: `${
+          import.meta.env.VITE_BACKEND
+        }/api/payment-verification`,
+        prefill: {
+          //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
+          name: "Gaurav Kumar", //your customer's name
+          email: "gaurav.kumar@example.com",
+          contact: "9000090000", //Provide the customer's phone number for better conversion rates
         },
-        "notes": {
-            "address": "Razorpay Corporate Office"
+        notes: {
+          address: "Razorpay Corporate Office",
         },
-        "theme": {
-            "color": "#3399cc"
-        }
-    };
-      console.log(data);
+        theme: {
+          color: "#FACC14",
+        },
+      };
+
+      const razor = new window.Razorpay(options);
+      razor.open();
     } catch (error) {
       console.error("Error during checkout:", error);
     }
@@ -125,6 +141,11 @@ const ViewProduct = () => {
     );
   }
 
+  // Determine the image source
+  const imageSrc = Array.isArray(product.images)
+    ? product.images[0]
+    : product.images;
+
   return (
     <>
       <Header />
@@ -134,7 +155,7 @@ const ViewProduct = () => {
           <div className="w-full md:w-1/2">
             <div className="border border-gray-200 rounded p-4">
               <img
-                src={product.images}
+                src={imageSrc}
                 alt={product.title}
                 className="w-full h-auto object-contain"
               />

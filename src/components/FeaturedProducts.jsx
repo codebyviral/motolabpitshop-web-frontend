@@ -15,6 +15,7 @@ const FeaturedProducts = () => {
         `${backendUrl}/api/get/featured-products`
       );
       setProducts(data.featuredProducts);
+      console.log(data)
     } catch (error) {
       console.log(error);
     }

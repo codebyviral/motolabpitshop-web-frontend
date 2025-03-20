@@ -39,6 +39,7 @@ const LoginForm = () => {
       if (res.status === 200) {
         toast.success("Login Successful!");
         storeTokenInLocalStorage(res.data.token);
+        console.log(localStorage.getItem("token"));
         storeUserId(res.data.userId);
         storeisAdminState(res.data.isAdmin);
         navigate("/");

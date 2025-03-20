@@ -7,11 +7,16 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { name, category, price, images, isNew } = product;
   const { productId, setId } = useProductContext();
+
   const handleSetProduct = () => {
     setId(product._id);
     console.log(localStorage.getItem("productId"));
     navigate(`/view-product/${localStorage.getItem("productId")}`);
   };
+
+  // Determine the image source
+  const imageSrc = Array.isArray(images) ? images[0] : images;
+
   return (
     <div
       onClick={handleSetProduct}
@@ -25,7 +30,7 @@ const ProductCard = ({ product }) => {
 
       <div className="relative overflow-hidden">
         <img
-          src={images}
+          src={imageSrc} // Use the determined image source
           alt={name}
           className="w-full h-64 object-cover transition duration-300 group-hover:scale-105"
         />

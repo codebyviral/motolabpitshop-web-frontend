@@ -6,5 +6,6 @@ import AllProducts from "./AllProducts"
 import Profile from "./Profile"
 import Logout from "./Logout"
 import ViewProduct from "./ViewProduct"
+import PaymentSuccess from "./PaymentSuccess"
 
-export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout, ViewProduct }
+export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout, ViewProduct , PaymentSuccess }
