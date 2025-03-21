@@ -10,7 +10,7 @@ const Footer = () => {
               Join our newsletter
             </h2>
             <p className="mt-2 text-gray-300">
-              Get updates on new gear and exclusive offers
+              Get updates on new gear and exclusive offer
             </p>
 
             <div className="flex flex-col mx-auto mt-6 space-y-3 md:space-y-0 md:flex-row">
@@ -44,7 +44,7 @@ const Footer = () => {
                 Shop
               </a>
               <a
-                href="#"
+                href="/about-us"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 About Us
