@@ -1,23 +1,54 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Header, Footer } from "../components/index";
 import { useAuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Profile = () => {
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [user, setUser] = useState({
-    name: "John Rider",
-    email: "john.rider@example.com",
+    name: "",
+    email: "",
     phone: "(555) 123-4567",
     address: "123 Main Street, Anytown, USA",
     profileImage: "/api/placeholder/100/100",
   });
 
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(user);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+  });
   const [activeTab, setActiveTab] = useState("profile");
 
   const { LogoutUser } = useAuthContext();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/api/auth/user", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const userData = response.data.user;
+        setUser({
+          name: userData.fullName,
+          email: userData.email,
+          phone: user.phone,
+          address: user.address,
+          profileImage: user.profileImage || "/api/placeholder/100/100",
+        });
+
+        setFormData({
+          name: userData.fullName || " ",
+          email: userData.email || " ",
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchUser();
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,10 +58,34 @@ const Profile = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setUser(formData);
-    setIsEditing(false);
+    try {
+      const response = await axios.put(
+        "http://localhost:4000/api/auth/updateuser",
+        {
+          fullName: formData.name,
+          email: formData.email,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        // Update user state immediately after successful update
+        setUser((prevUser) => ({
+          ...prevUser,
+          name: formData.name,
+          email: formData.email,
+        }));
+
+        // Turn off edit mode
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
   };
 
   const handleLogout = () => {
@@ -108,11 +163,10 @@ const Profile = () => {
           <ul className="flex flex-wrap -mb-px">
             <li className="mr-2">
               <button
-                className={`inline-block p-4 ${
-                  activeTab === "profile"
+                className={`inline-block p-4 ${activeTab === "profile"
                     ? "text-yellow-600 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
                 onClick={() => setActiveTab("profile")}
               >
                 Profile Details
@@ -120,11 +174,10 @@ const Profile = () => {
             </li>
             <li className="mr-2">
               <button
-                className={`inline-block p-4 ${
-                  activeTab === "orders"
+                className={`inline-block p-4 ${activeTab === "orders"
                     ? "text-yellow-600 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
                 onClick={() => setActiveTab("orders")}
               >
                 Order History
@@ -132,11 +185,10 @@ const Profile = () => {
             </li>
             <li className="mr-2">
               <button
-                className={`inline-block p-4 ${
-                  activeTab === "wishlist"
+                className={`inline-block p-4 ${activeTab === "wishlist"
                     ? "text-yellow-600 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
-                }`}
+                  }`}
                 onClick={() => setActiveTab("wishlist")}
               >
                 Wishlist
@@ -194,7 +246,10 @@ const Profile = () => {
                       type="button"
                       onClick={() => {
                         setIsEditing(false);
-                        setFormData(user);
+                        setFormData({
+                          name: user.name,
+                          email: user.email,
+                        });
                       }}
                       className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                     >
@@ -279,13 +334,12 @@ const Profile = () => {
                         </td>
                         <td className="py-3 px-4 text-sm">
                           <span
-                            className={`px-2 py-1 text-xs rounded-full ${
-                              order.status === "Delivered"
+                            className={`px-2 py-1 text-xs rounded-full ${order.status === "Delivered"
                                 ? "bg-green-100 text-green-800"
                                 : order.status === "Shipped"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}
                           >
                             {order.status}
                           </span>
