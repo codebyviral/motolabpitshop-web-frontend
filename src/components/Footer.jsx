@@ -56,7 +56,7 @@ const Footer = () => {
                 Blog
               </a>
               <a
-                href="#"
+                href="/ContactMethods"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Contact

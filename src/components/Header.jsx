@@ -159,7 +159,7 @@ const Header = () => {
             <a href="#" className="font-medium">
               Blog
             </a>
-            <a href="#" className="font-medium">
+            <a href="/ContactMethods" className="font-medium">
               Contact
             </a>
           </div>
