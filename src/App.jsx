@@ -10,6 +10,7 @@ import {
   Profile,
   ViewProduct,
   PaymentSuccess,
+  ContactMethods,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
 
@@ -39,6 +40,8 @@ function App() {
           <Route path="/view-all-products" element={<AllProducts />} />
           <Route path="/view-product/:id" element={<ViewProduct />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/ContactMethods" element={<ContactMethods />} />
+          
         </Routes>
       </div>
     </>
