@@ -11,6 +11,7 @@ import {
   ViewProduct,
   PaymentSuccess,
   ContactMethods,
+  TermsAndConditions,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
 
@@ -41,7 +42,7 @@ function App() {
           <Route path="/view-product/:id" element={<ViewProduct />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/ContactMethods" element={<ContactMethods />} />
-          
+          <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
         </Routes>
       </div>
     </>
