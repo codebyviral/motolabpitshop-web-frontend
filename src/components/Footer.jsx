@@ -44,7 +44,7 @@ const Footer = () => {
                 Shop
               </a>
               <a
-                href="#"
+                href="/about-us"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 About Us
