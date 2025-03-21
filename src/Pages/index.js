@@ -9,5 +9,6 @@ import ViewProduct from "./ViewProduct"
 import PaymentSuccess from "./PaymentSuccess"
 import ContactMethods from "./ContactMethods"
 import TermsAndConditions from "./TermsAndConditions"
+import PrivacyPolicy from "./PrivacyPolicy"
 
-export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout, ViewProduct , PaymentSuccess,ContactMethods ,TermsAndConditions}
+export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout, ViewProduct , PaymentSuccess,ContactMethods ,TermsAndConditions,PrivacyPolicy}

@@ -70,8 +70,8 @@ const TermsAndConditions = () => {
       
       <Paragraph>
         These terms and conditions outline the rules and regulations for the use of Motolab's Website, located at{" "}
-        <StyledLink href="https://motolabpitshop.vercel.app/" target="_blank" rel="noopener noreferrer">
-          https://motolabpitshop.vercel.app/
+        <StyledLink href="/PrivacyPolicy" target="_blank" rel="noopener noreferrer">
+        PrivacyPolicy
         </StyledLink>.
       </Paragraph>
 
