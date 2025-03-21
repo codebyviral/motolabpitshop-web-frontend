@@ -47,6 +47,7 @@ function App() {
           <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
           <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/Home" element={<Home />} />
         </Routes>
       </div>
     </>

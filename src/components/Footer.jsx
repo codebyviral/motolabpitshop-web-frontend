@@ -32,7 +32,7 @@ const Footer = () => {
 
             <div className="flex flex-col items-start mt-5 space-y-2">
               <a
-                href="#"
+                href="/Home"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Home
