@@ -10,5 +10,6 @@ import PaymentSuccess from "./PaymentSuccess"
 import ContactMethods from "./ContactMethods"
 import TermsAndConditions from "./TermsAndConditions"
 import PrivacyPolicy from "./PrivacyPolicy"
+import  NotFound from "./NotFound"
 
-export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout, ViewProduct , PaymentSuccess,ContactMethods ,TermsAndConditions,PrivacyPolicy}
+export { Home, LoginForm, SignupForm, AboutUs, AllProducts, Profile, Logout, ViewProduct , PaymentSuccess,ContactMethods ,TermsAndConditions,PrivacyPolicy,NotFound}
