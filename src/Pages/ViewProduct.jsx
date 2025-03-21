@@ -3,7 +3,8 @@ import { Footer, Header } from "../components";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import Razorpay from "razorpay";
+import CheckoutModal from "../components/CheckoutModal"; // Import the modal component
+import { useAuthContext } from "../context/AuthContext"; // Import auth context
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -11,6 +12,8 @@ const ViewProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isLoggedIn } = useAuthContext(); // Get login status
   const backendUrl = import.meta.env.VITE_BACKEND;
 
   useEffect(() => {
@@ -39,23 +42,25 @@ const ViewProduct = () => {
     }
   };
 
-  const checkout = async () => {
+  const initiateRazorpayCheckout = async (userInfo = null) => {
     if (!product) return toast.error(`Product not found`);
 
-    const {
-      data: { key },
-    } = await axios.get(`${backendUrl}/api/get-key`);
-
-    console.log(key);
-
     try {
+      // Get Razorpay key
+      const {
+        data: { key },
+      } = await axios.get(`${backendUrl}/api/get-key`);
+
+      // Create order
       const {
         data: { order },
       } = await axios.post(`${backendUrl}/api/checkout`, {
-        amount: product.price,
+        amount: product.price * quantity,
       });
+
+      // Configure Razorpay options with either user-provided info or logged-in user info
       var options = {
-        key: await key,
+        key: key,
         amount: order.amount,
         currency: "INR",
         name: "Motolab PitShop",
@@ -66,24 +71,53 @@ const ViewProduct = () => {
           import.meta.env.VITE_BACKEND
         }/api/payment-verification`,
         prefill: {
-          //We recommend using the prefill parameter to auto-fill customer's contact information especially their phone number
-          name: "Gaurav Kumar", //your customer's name
-          email: "gaurav.kumar@example.com",
-          contact: "9000090000", //Provide the customer's phone number for better conversion rates
+          // Use form data if provided, otherwise will be set by backend for logged-in users
+          name: userInfo?.fullName || "",
+          email: userInfo?.email || "",
+          contact: userInfo?.phone || "",
         },
         notes: {
-          address: "Razorpay Corporate Office",
+          address: userInfo?.address || "",
+          city: userInfo?.city || "",
+          state: userInfo?.state || "",
+          pincode: userInfo?.pincode || "",
+          quantity: quantity,
+          productId: id,
         },
         theme: {
           color: "#FACC14",
         },
       };
 
+      // Initialize Razorpay
       const razor = new window.Razorpay(options);
       razor.open();
     } catch (error) {
       console.error("Error during checkout:", error);
+      toast.error("Payment initialization failed. Please try again.");
     }
+  };
+
+  const handleCheckout = () => {
+    if (isLoggedIn) {
+      // If logged in, directly proceed to Razorpay
+      initiateRazorpayCheckout();
+    } else {
+      // If not logged in, show the modal
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleFormSubmit = (formData) => {
+    // Process the form data and initiate Razorpay
+    initiateRazorpayCheckout(formData);
+    setIsModalOpen(false);
+
+    toast.success("Redirecting to payment gateway...");
   };
 
   if (loading) {
@@ -233,7 +267,7 @@ const ViewProduct = () => {
                 Add to Cart
               </button>
               <button
-                onClick={checkout}
+                onClick={handleCheckout}
                 className="bg-orange-400 hover:bg-orange-500 py-2 px-6 font-medium rounded"
               >
                 Buy Now
@@ -257,6 +291,17 @@ const ViewProduct = () => {
           </div>
         </div>
       </div>
+
+      {/* Checkout Modal - only shown for non-logged in users */}
+      {!isLoggedIn && (
+        <CheckoutModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSubmit={handleFormSubmit}
+          product={product}
+        />
+      )}
+
       <Footer />
     </>
   );
