@@ -159,7 +159,14 @@ const Footer = () => {
 
         <div className="mt-6 text-center text-sm text-gray-400">
           <p>© 2025 MotoLab. All rights reserved.</p>
+          <a
+                href="/TermsAndConditions "
+                className="text-gray-100 transition-colors duration-800 hover:text-yellow-200 hover:underline"
+              >
+                TermsAndConditions
+              </a>
         </div>
+        
       </div>
     </footer>
   );
