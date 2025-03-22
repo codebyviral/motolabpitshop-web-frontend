@@ -63,7 +63,7 @@ const SignupForm = () => {
     <>
       <Header />
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8 m-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8 m-4">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Create an Account

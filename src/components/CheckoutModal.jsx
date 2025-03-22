@@ -4,11 +4,14 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
+    phoneNumber: "",
+    address: {
+      addressLine1: "",
+      addressLine2: "",
+      city: "",
+      state: "",
+      pinCode: "",
+    },
   });
 
   const [errors, setErrors] = useState({});
@@ -16,7 +19,17 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name in formData.address) {
+      setFormData({
+        ...formData,
+        address: {
+          ...formData.address,
+          [name]: value,
+        },
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
 
     // Clear error when user types
     if (errors[name]) {
@@ -35,16 +48,18 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
       newErrors.email = "Email is invalid";
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ""))) {
-      newErrors.phone = "Phone number must be 10 digits";
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phoneNumber.replace(/\D/g, ""))) {
+      newErrors.phoneNumber = "Phone number must be 10 digits";
     }
 
-    if (!formData.address.trim()) newErrors.address = "Address is required";
-    if (!formData.city.trim()) newErrors.city = "City is required";
-    if (!formData.state.trim()) newErrors.state = "State is required";
-    if (!formData.pincode.trim()) newErrors.pincode = "Pincode is required";
+    if (!formData.address.addressLine1.trim())
+      newErrors.addressLine1 = "Address Line 1 is required";
+    if (!formData.address.city.trim()) newErrors.city = "City is required";
+    if (!formData.address.state.trim()) newErrors.state = "State is required";
+    if (!formData.address.pinCode.trim())
+      newErrors.pinCode = "Pincode is required";
 
     return newErrors;
   };
@@ -172,47 +187,69 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
             {/* Phone */}
             <div>
               <label
-                htmlFor="phone"
+                htmlFor="phoneNumber"
                 className="block text-sm font-medium text-gray-700"
               >
                 Phone Number *
               </label>
               <input
                 type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
                 onChange={handleChange}
                 className={`mt-1 block w-full rounded-md border ${
-                  errors.phone ? "border-red-500" : "border-gray-300"
+                  errors.phoneNumber ? "border-red-500" : "border-gray-300"
                 } px-3 py-2 focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:text-sm`}
               />
-              {errors.phone && (
-                <p className="mt-1 text-xs text-red-600">{errors.phone}</p>
+              {errors.phoneNumber && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.phoneNumber}
+                </p>
               )}
             </div>
 
-            {/* Address */}
+            {/* Address Line 1 */}
             <div>
               <label
-                htmlFor="address"
+                htmlFor="addressLine1"
                 className="block text-sm font-medium text-gray-700"
               >
-                Delivery Address *
+                Address Line 1 *
               </label>
-              <textarea
-                id="address"
-                name="address"
-                rows="2"
-                value={formData.address}
+              <input
+                type="text"
+                id="addressLine1"
+                name="addressLine1"
+                value={formData.address.addressLine1}
                 onChange={handleChange}
                 className={`mt-1 block w-full rounded-md border ${
-                  errors.address ? "border-red-500" : "border-gray-300"
+                  errors.addressLine1 ? "border-red-500" : "border-gray-300"
                 } px-3 py-2 focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:text-sm`}
               />
-              {errors.address && (
-                <p className="mt-1 text-xs text-red-600">{errors.address}</p>
+              {errors.addressLine1 && (
+                <p className="mt-1 text-xs text-red-600">
+                  {errors.addressLine1}
+                </p>
               )}
+            </div>
+
+            {/* Address Line 2 */}
+            <div>
+              <label
+                htmlFor="addressLine2"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Address Line 2
+              </label>
+              <input
+                type="text"
+                id="addressLine2"
+                name="addressLine2"
+                value={formData.address.addressLine2}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:text-sm"
+              />
             </div>
 
             {/* City, State, Pincode row */}
@@ -228,7 +265,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
                   type="text"
                   id="city"
                   name="city"
-                  value={formData.city}
+                  value={formData.address.city}
                   onChange={handleChange}
                   className={`mt-1 block w-full rounded-md border ${
                     errors.city ? "border-red-500" : "border-gray-300"
@@ -250,7 +287,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
                   type="text"
                   id="state"
                   name="state"
-                  value={formData.state}
+                  value={formData.address.state}
                   onChange={handleChange}
                   className={`mt-1 block w-full rounded-md border ${
                     errors.state ? "border-red-500" : "border-gray-300"
@@ -264,23 +301,23 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
 
             <div>
               <label
-                htmlFor="pincode"
+                htmlFor="pinCode"
                 className="block text-sm font-medium text-gray-700"
               >
                 Pincode *
               </label>
               <input
                 type="text"
-                id="pincode"
-                name="pincode"
-                value={formData.pincode}
+                id="pinCode"
+                name="pinCode"
+                value={formData.address.pinCode}
                 onChange={handleChange}
                 className={`mt-1 block w-full rounded-md border ${
-                  errors.pincode ? "border-red-500" : "border-gray-300"
+                  errors.pinCode ? "border-red-500" : "border-gray-300"
                 } px-3 py-2 focus:border-orange-500 focus:outline-none focus:ring-orange-500 sm:text-sm`}
               />
-              {errors.pincode && (
-                <p className="mt-1 text-xs text-red-600">{errors.pincode}</p>
+              {errors.pinCode && (
+                <p className="mt-1 text-xs text-red-600">{errors.pinCode}</p>
               )}
             </div>
           </div>

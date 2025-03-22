@@ -2,6 +2,7 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { motion } from "framer-motion"; // Import framer-motion for animations
 
 const Hero = () => {
   const settings = {
@@ -23,30 +24,43 @@ const Hero = () => {
   ];
 
   return (
-    <div className="relative py-16 overflow-hidden">
+    <div className="relative py-16 overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100">
       {/* Background Overlay */}
       <div className="absolute inset-0 opacity-10 z-0"></div>
 
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center relative z-10">
         {/* Text Section */}
         <div className="w-full md:w-1/2 text-center md:text-left mb-8 md:mb-0">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+          <motion.h1
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-bold mb-4 leading-tight"
+          >
             The Premium <br className="md:hidden" /> Motorcycle Gear
-          </h1>
-          <p className="text-gray-600 mb-6 md:mb-8 text-base md:text-lg">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-gray-600 mb-6 md:mb-8 text-base md:text-lg"
+          >
             High-quality motorcycle parts, accessories, and apparel for riders
             who demand the best. MotoLab Pit Shop - your one-stop destination.
-          </p>
-          <a
+          </motion.p>
+          <motion.a
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             href="/view-all-products"
-            class="relative inline-block px-4 py-2 font-medium group"
+            className="relative inline-block px-6 py-3 font-medium group"
           >
-            <span class="absolute inset-0 w-full h-full transition duration-200 ease-out transform translate-x-1 translate-y-1 bg-black group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
-            <span class="absolute inset-0 w-full h-full bg-white border-2 border-black group-hover:bg-black"></span>
-            <span class="relative text-black group-hover:text-white">
+            <span className="absolute inset-0 w-full h-full transition duration-200 ease-out transform translate-x-1 translate-y-1 bg-black group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
+            <span className="absolute inset-0 w-full h-full bg-white border-2 border-black group-hover:bg-black"></span>
+            <span className="relative text-black group-hover:text-white text-lg font-semibold">
               SHOP NOW
             </span>
-          </a>
+          </motion.a>
         </div>
 
         {/* Carousel Section */}
@@ -54,15 +68,19 @@ const Hero = () => {
           <Slider {...settings} className="w-full max-w-sm md:max-w-md">
             {images.map((image, index) => (
               <div key={index} className="relative h-80">
-                {" "}
-                {/* Fixed height for consistency */}
-                <img
-                  src={image}
-                  alt={`Slide ${index + 1}`}
-                  className="w-full h-full object-cover rounded-lg shadow-xl transform hover:scale-105 transition duration-500"
-                />
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-full overflow-hidden rounded-lg shadow-2xl"
+                >
+                  <img
+                    src={image}
+                    alt={`Slide ${index + 1}`}
+                    className="w-full h-full object-cover transform hover:scale-105 transition duration-500"
+                  />
+                </motion.div>
                 {/* Overlay Badge */}
-                <div className="absolute bottom-3 left-3 bg-gradient-to-r from-gray-900 to-gray-700 px-3 py-1.5 rounded-full shadow-lg text-xs font-medium text-white tracking-wide uppercase flex items-center gap-1">
+                <div className="absolute bottom-4 left-4 bg-gradient-to-r from-gray-900 to-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-medium text-white tracking-wide uppercase flex items-center gap-1">
                   <span className="text-yellow-400">★</span> Top Rated Gear
                 </div>
               </div>

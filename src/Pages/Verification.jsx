@@ -3,7 +3,8 @@ import { Header, Footer } from "../components/index";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
 
 const Verification = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);

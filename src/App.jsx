@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Route, Routes } from "react-router-dom";
+import PrivateRoute from "./components/PrivateRoute";
 import {
   Home,
   LoginForm,
@@ -34,6 +35,7 @@ function App() {
       />
       <div className="App">
         <Routes>
+          {/* PRIVATE ROUTES */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/logout" element={<Logout />} />

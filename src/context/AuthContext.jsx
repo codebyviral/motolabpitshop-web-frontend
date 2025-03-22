@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.getItem("isAdmin") === "true"
   );
   const [isAdmin, setIsAdmin] = useState(!!admin);
+
   const storeTokenInLocalStorage = (serverToken) => {
     localStorage.setItem("token", serverToken);
     setToken(serverToken);
@@ -30,13 +31,19 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("profileImg");
     localStorage.removeItem("userId");
     localStorage.removeItem("isAdmin");
+    localStorage.removeItem("verified")
     setIsLoggedIn(false);
   };
 
   // Store UserId
   const storeUserId = (userId) => {
     localStorage.setItem("userId", userId);
-    console.log(localStorage.getItem("userId"))
+    console.log(localStorage.getItem("userId"));
+  };
+
+  // store account verification status
+  const storeAccountStatus = (status) => {
+    localStorage.setItem("verified", status);
   };
 
   // Store image url
@@ -50,6 +57,7 @@ export const AuthProvider = ({ children }) => {
         isLoggedIn,
         LogoutUser,
         storeUserId,
+        storeAccountStatus,
         storeTokenInLocalStorage,
         admin,
         storeisAdminState,
