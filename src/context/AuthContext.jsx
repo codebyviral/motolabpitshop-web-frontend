@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }) => {
   // Store UserId
   const storeUserId = (userId) => {
     localStorage.setItem("userId", userId);
+    console.log(localStorage.getItem("userId"))
   };
 
   // Store image url

@@ -9,6 +9,8 @@ const SignupForm = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [signupLoading, setSignupLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 

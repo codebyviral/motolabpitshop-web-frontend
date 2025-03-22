@@ -1,9 +1,27 @@
 import React from "react";
 import { useSearchParams } from "react-router-dom";
+import { useEffect } from "react";
+import axios from "axios";
 
 const PaymentSuccess = () => {
   const searchQuery = useSearchParams()[0];
   const referenceNum = searchQuery.get("reference");
+
+  const backendUrl = import.meta.env.VITE_BACKEND;
+
+  // create a order
+
+  const createOrder = async () => {
+    try {
+      const response = await axios.post(`${backendUrl}`);
+    } catch (error) {
+      console.log(`Error creating order:${error}`);
+    }
+  };
+
+  useEffect(() => {
+    createOrder();
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-amber-50 flex items-center justify-center p-4 sm:p-6 md:p-8">

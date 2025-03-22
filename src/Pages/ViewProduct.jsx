@@ -42,6 +42,19 @@ const ViewProduct = () => {
     }
   };
 
+  // get user details by his ID
+
+  const getUserDetails = async () => {
+    try {
+      const userResponse = await axios.get(
+        `${backendUrl}/api/get-user/?user=${localStorage.getItem("userId")}`
+      );
+      console.log(userResponse);
+    } catch (error) {
+      console.error(`Error getting user details: ${error}`);
+    }
+  };
+
   const initiateRazorpayCheckout = async (userInfo = null) => {
     if (!product) return toast.error(`Product not found`);
 
@@ -51,22 +64,35 @@ const ViewProduct = () => {
         data: { key },
       } = await axios.get(`${backendUrl}/api/get-key`);
 
-      // Create order
-      const {
-        data: { order },
-      } = await axios.post(`${backendUrl}/api/checkout`, {
+      // checkout cart
+      const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
         amount: product.price * quantity,
       });
+
+      if (checkoutResponse.status === 200) {
+        // checkout is successful
+        // create a order
+        const items = [];
+        items.push(product);
+        console.log("items", items);
+        // fetch user shipping details before creating order
+        await getUserDetails();
+        const orderResponse = await axios.post(
+          `${backendUrl}/api/order/create`,
+          {
+          }
+        );
+      }
 
       // Configure Razorpay options with either user-provided info or logged-in user info
       var options = {
         key: key,
-        amount: order.amount,
+        amount: checkoutResponse.data.amount,
         currency: "INR",
         name: "Motolab PitShop",
         description: product.description,
         image: "https://i.ibb.co/2178bTsx/motolab.jpg",
-        order_id: order.id,
+        order_id: checkoutResponse.data.id,
         callback_url: `${
           import.meta.env.VITE_BACKEND
         }/api/payment-verification`,
