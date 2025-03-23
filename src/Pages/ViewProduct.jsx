@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import CheckoutModal from "../components/CheckoutModal"; // Import the modal component
 import { useAuthContext } from "../context/AuthContext"; // Import auth context
+import { motion } from "framer-motion"; // Import framer-motion for animations
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -29,7 +30,6 @@ const ViewProduct = () => {
         productId: id,
       });
       if (data.success && data.product) {
-        console.log(data);
         setProduct(data.product);
       } else {
         setError(true);
@@ -42,6 +42,18 @@ const ViewProduct = () => {
     }
   };
 
+  // Get user details by their ID
+  const getUserDetails = async () => {
+    try {
+      const userResponse = await axios.get(
+        `${backendUrl}/api/get-user/?user=${localStorage.getItem("userId")}`
+      );
+      console.log(userResponse);
+    } catch (error) {
+      console.error(`Error getting user details: ${error}`);
+    }
+  };
+
   const initiateRazorpayCheckout = async (userInfo = null) => {
     if (!product) return toast.error(`Product not found`);
 
@@ -51,22 +63,30 @@ const ViewProduct = () => {
         data: { key },
       } = await axios.get(`${backendUrl}/api/get-key`);
 
-      // Create order
-      const {
-        data: { order },
-      } = await axios.post(`${backendUrl}/api/checkout`, {
+      // Checkout cart
+      const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
         amount: product.price * quantity,
       });
 
+      if (checkoutResponse.status === 200) {
+        // Checkout is successful
+        console.log("checkoutResponse", checkoutResponse);
+        console.log("Amount is ", checkoutResponse.data.order.amount);
+        const items = [];
+        items.push(product);
+        console.log("items", items);
+        // Fetch user shipping details before creating order
+        await getUserDetails();
+      }
       // Configure Razorpay options with either user-provided info or logged-in user info
       var options = {
         key: key,
-        amount: order.amount,
+        amount: checkoutResponse.data.order.amount / 100,
         currency: "INR",
         name: "Motolab PitShop",
         description: product.description,
         image: "https://i.ibb.co/2178bTsx/motolab.jpg",
-        order_id: order.id,
+        order_id: checkoutResponse.data.order.id,
         callback_url: `${
           import.meta.env.VITE_BACKEND
         }/api/payment-verification`,
@@ -77,10 +97,10 @@ const ViewProduct = () => {
           contact: userInfo?.phone || "",
         },
         notes: {
-          address: userInfo?.address || "",
-          city: userInfo?.city || "",
-          state: userInfo?.state || "",
-          pincode: userInfo?.pincode || "",
+          address: userInfo?.address?.addressLine1 || "",
+          city: userInfo?.address?.city || "",
+          state: userInfo?.address?.state || "",
+          pincode: userInfo?.address?.pinCode || "",
           quantity: quantity,
           productId: id,
         },
@@ -112,12 +132,67 @@ const ViewProduct = () => {
     setIsModalOpen(false);
   };
 
-  const handleFormSubmit = (formData) => {
-    // Process the form data and initiate Razorpay
-    initiateRazorpayCheckout(formData);
-    setIsModalOpen(false);
+  // Create a guest order checkout
+  const placeOrder = async (formData) => {
+    console.log(formData);
+    try {
+      const order_response = await axios.post(
+        `${backendUrl}/api/order/create-guest-order`,
+        {
+          fullName: formData.fullName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          address: {
+            addressLine1: formData.addressLine1,
+            addressLine2: formData.addressLine2,
+            city: formData.city,
+            state: formData.state,
+            pinCode: formData.pincode,
+          },
+          items: [
+            {
+              product: product._id, // Use the product ID from the state
+              quantity: quantity,
+              price: product.price,
+            },
+          ],
+          totalAmount: product.price * quantity,
+          shippingAddress: `${formData.addressLine1}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+        }
+      );
 
-    toast.success("Redirecting to payment gateway...");
+      console.log("Order created:", order_response.data);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      throw error; // Re-throw the error to handle it in the calling function
+    }
+  };
+
+  const handleFormSubmit = async (formData) => {
+    try {
+      // Format the address as an object
+      const formattedData = {
+        ...formData,
+        address: {
+          addressLine1: formData.addressLine1,
+          addressLine2: formData.addressLine2,
+          city: formData.city,
+          state: formData.state,
+          pinCode: formData.pincode,
+        },
+      };
+
+      // Pass the formatted data to the backend
+      await placeOrder(formattedData);
+
+      // Initiate Razorpay checkout
+      initiateRazorpayCheckout(formattedData);
+      setIsModalOpen(false);
+      toast.success("Redirecting to payment gateway...");
+    } catch (error) {
+      console.error("Error during form submission:", error);
+      toast.error("Failed to process the order. Please try again.");
+    }
   };
 
   if (loading) {
@@ -125,11 +200,14 @@ const ViewProduct = () => {
       <>
         <Header />
         <div className="max-w-6xl mx-auto p-4 flex flex-col items-center justify-center min-h-[400px]">
-          <div className="loader-container">
-            <div className="loader-spinner">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
-            </div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            className="loader-container"
+          >
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500"></div>
+          </motion.div>
         </div>
         <Footer />
       </>
@@ -141,7 +219,12 @@ const ViewProduct = () => {
       <>
         <Header />
         <div className="max-w-6xl mx-auto p-4 flex flex-col items-center justify-center min-h-[400px]">
-          <div className="text-center py-10 px-6 max-w-md">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center py-10 px-6 max-w-md"
+          >
             <svg
               className="mx-auto h-16 w-16 text-gray-400 mb-4"
               stroke="currentColor"
@@ -168,7 +251,7 @@ const ViewProduct = () => {
             >
               Continue Shopping
             </a>
-          </div>
+          </motion.div>
         </div>
         <Footer />
       </>
@@ -184,7 +267,12 @@ const ViewProduct = () => {
     <>
       <Header />
       <div className="max-w-6xl mx-auto p-4 bg-white">
-        <div className="flex flex-col md:flex-row gap-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col md:flex-row gap-8"
+        >
           {/* Product Image */}
           <div className="w-full md:w-1/2">
             <div className="border border-gray-200 rounded p-4">
@@ -263,15 +351,21 @@ const ViewProduct = () => {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <button className="bg-yellow-400 hover:bg-yellow-500 py-2 px-6 font-medium rounded">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-yellow-400 hover:bg-yellow-500 py-2 px-6 font-medium rounded"
+              >
                 Add to Cart
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={handleCheckout}
                 className="bg-orange-400 hover:bg-orange-500 py-2 px-6 font-medium rounded"
               >
                 Buy Now
-              </button>
+              </motion.button>
             </div>
 
             {/* Category */}
@@ -289,7 +383,7 @@ const ViewProduct = () => {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Checkout Modal - only shown for non-logged in users */}
