@@ -3,6 +3,7 @@ import { Header, Footer } from "../components/index";
 import { useAuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const token = localStorage.getItem("token");
@@ -13,6 +14,7 @@ const Profile = () => {
     phone: "(555) 123-4567",
     address: "123 Main Street, Anytown, USA",
     profileImage: "/api/placeholder/100/100",
+    isVerified: false,
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -24,12 +26,15 @@ const Profile = () => {
 
   const { LogoutUser } = useAuthContext();
 
+  const backendUrl = import.meta.env.VITE_BACKEND;
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/auth/user", {
+        const response = await axios.get(`${backendUrl}/api/auth/user`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
+        console.log(response.data.isVerified);
         const userData = response.data.user;
         setUser({
           name: userData.fullName,
@@ -37,6 +42,7 @@ const Profile = () => {
           phone: user.phone,
           address: user.address,
           profileImage: user.profileImage || "/api/placeholder/100/100",
+          isVerified: userData.isVerified,
         });
 
         setFormData({
@@ -62,7 +68,7 @@ const Profile = () => {
     e.preventDefault();
     try {
       const response = await axios.put(
-        "http://localhost:4000/api/auth/updateuser",
+        `${backendUrl}/api/auth/updateuser`,
         {
           fullName: formData.name,
           email: formData.email,
@@ -151,9 +157,26 @@ const Profile = () => {
             </h2>
             <p className="text-gray-600">Member since January 2023</p>
             <div className="mt-2">
-              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2">
-                Premium Member
-              </span>
+              {user.isVerified ? (
+                <>
+                  <span
+                    onClick={() => toast.success(`We trust you! 🏍️`)}
+                    className="bg-yellow-400 text-black text-xs font-medium px-2.5 py-0.5 rounded-full mr-2"
+                  >
+                    Verified
+                  </span>
+                </>
+              ) : (
+                <>
+                  {" "}
+                  <span
+                    onClick={() => navigate(`/verify-account`)}
+                    className="bg-red-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2"
+                  >
+                    Not Verified
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -163,10 +186,11 @@ const Profile = () => {
           <ul className="flex flex-wrap -mb-px">
             <li className="mr-2">
               <button
-                className={`inline-block p-4 ${activeTab === "profile"
+                className={`inline-block p-4 ${
+                  activeTab === "profile"
                     ? "text-yellow-600 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
-                  }`}
+                }`}
                 onClick={() => setActiveTab("profile")}
               >
                 Profile Details
@@ -174,10 +198,11 @@ const Profile = () => {
             </li>
             <li className="mr-2">
               <button
-                className={`inline-block p-4 ${activeTab === "orders"
+                className={`inline-block p-4 ${
+                  activeTab === "orders"
                     ? "text-yellow-600 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
-                  }`}
+                }`}
                 onClick={() => setActiveTab("orders")}
               >
                 Order History
@@ -185,10 +210,11 @@ const Profile = () => {
             </li>
             <li className="mr-2">
               <button
-                className={`inline-block p-4 ${activeTab === "wishlist"
+                className={`inline-block p-4 ${
+                  activeTab === "wishlist"
                     ? "text-yellow-600 border-b-2 border-yellow-500"
                     : "text-gray-500 hover:text-gray-700"
-                  }`}
+                }`}
                 onClick={() => setActiveTab("wishlist")}
               >
                 Wishlist
@@ -334,12 +360,13 @@ const Profile = () => {
                         </td>
                         <td className="py-3 px-4 text-sm">
                           <span
-                            className={`px-2 py-1 text-xs rounded-full ${order.status === "Delivered"
+                            className={`px-2 py-1 text-xs rounded-full ${
+                              order.status === "Delivered"
                                 ? "bg-green-100 text-green-800"
                                 : order.status === "Shipped"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-yellow-100 text-yellow-800"
-                              }`}
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
                           >
                             {order.status}
                           </span>

@@ -10,8 +10,12 @@ const LoginForm = () => {
 
   const backendUrl = `${import.meta.env.VITE_BACKEND}`;
 
-  const { storeUserId, storeTokenInLocalStorage, storeisAdminState } =
-    useAuthContext();
+  const {
+    storeUserId,
+    storeAccountStatus,
+    storeTokenInLocalStorage,
+    storeisAdminState,
+  } = useAuthContext();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,8 +45,13 @@ const LoginForm = () => {
         storeTokenInLocalStorage(res.data.token);
         console.log(localStorage.getItem("token"));
         storeUserId(res.data.userId);
+        storeAccountStatus(res.data.isVerified);
         storeisAdminState(res.data.isAdmin);
-        navigate("/");
+        if (JSON.parse(localStorage.getItem("verified")) === true) {
+          navigate("/");
+        } else {
+          navigate("/verify-account");
+        }
       }
     } catch (error) {
       if (error.response) {
@@ -75,7 +84,7 @@ const LoginForm = () => {
     <>
       <Header />
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8 m-4">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-md p-8 m-4">
           {/* Login Header */}
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">

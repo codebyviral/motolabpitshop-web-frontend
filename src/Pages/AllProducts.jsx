@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ProductCard, Header, Footer } from "../components/index";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 const AllProducts = () => {
   const backendUrl = import.meta.env.VITE_BACKEND;
@@ -14,7 +15,6 @@ const AllProducts = () => {
   const getProducts = async () => {
     try {
       const response = await axios.get(`${backendUrl}/api/product/get-all`);
-      console.log(response.data);
       if (response.data.success) {
         setProducts(response.data.products);
       } else {
@@ -65,28 +65,47 @@ const AllProducts = () => {
       <div className="min-h-screen bg-gray-50 py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">All Products</h1>
-            <p className="text-gray-600 max-w-xl mx-auto">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl font-bold mb-4"
+            >
+              All Products
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-gray-600 max-w-xl mx-auto"
+            >
               Browse our extensive collection of premium motorcycle gear, parts,
               and accessories
-            </p>
+            </motion.p>
           </div>
 
           {/* Filters and Sort */}
-          <div className="flex flex-col md:flex-row justify-between mb-8 space-y-4 md:space-y-0">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-col md:flex-row justify-between mb-8 space-y-4 md:space-y-0"
+          >
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
-                <button
+                <motion.button
                   key={category}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setCategoryFilter(category)}
-                  className={`px-4 py-2 text-sm font-medium transition duration-300 ${
+                  className={`px-4 py-2 text-sm font-medium transition duration-300 rounded-full ${
                     categoryFilter === category
                       ? "bg-black text-white"
                       : "bg-white text-gray-800 hover:bg-gray-100"
                   }`}
                 >
                   {category}
-                </button>
+                </motion.button>
               ))}
             </div>
 
@@ -110,27 +129,53 @@ const AllProducts = () => {
                 <option value="newest">Newest</option>
               </select>
             </div>
-          </div>
+          </motion.div>
 
           {/* Loading and Error Handling */}
           {loading && (
-            <p className="text-center text-gray-700">Loading products...</p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="text-center text-gray-700"
+            >
+              Loading products...
+            </motion.p>
           )}
-          {error && <p className="text-center text-red-500">{error}</p>}
+          {error && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="text-center text-red-500"
+            >
+              {error}
+            </motion.p>
+          )}
 
           {/* Product Count */}
           {!loading && !error && (
-            <div className="mb-6 text-gray-700">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="mb-6 text-gray-700"
+            >
               <p>{sortedProducts.length} products available</p>
-            </div>
+            </motion.div>
           )}
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          >
             {sortedProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
       <Footer />

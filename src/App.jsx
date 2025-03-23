@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { Route, Routes } from "react-router-dom";
+import PrivateRoute from "./components/PrivateRoute";
 import {
   Home,
   LoginForm,
@@ -13,7 +14,6 @@ import {
   ContactMethods,
   TermsAndConditions,
   PrivacyPolicy,
-  NotFound,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
 
@@ -34,6 +34,7 @@ function App() {
       />
       <div className="App">
         <Routes>
+          {/* PRIVATE ROUTES */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/logout" element={<Logout />} />
@@ -47,6 +48,8 @@ function App() {
           <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
           <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/verify-account" element={<Verification />} />
+
         </Routes>
       </div>
     </>
