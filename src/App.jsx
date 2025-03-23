@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
+
+
 import {
   Home,
   LoginForm,
@@ -14,6 +16,8 @@ import {
   ContactMethods,
   TermsAndConditions,
   PrivacyPolicy,
+  NotFound,
+  Verification,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
 

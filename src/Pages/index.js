@@ -16,5 +16,5 @@ import  NotFound from "./NotFound"
 
 import Verification from "./Verification"
 
-export { Home, LoginForm, SignupForm, Verification,AboutUs, AllProducts, Profile, Logout, ViewProduct , PaymentSuccess,ContactMethods ,TermsAndConditions,PrivacyPolicy}
+export { Home, LoginForm, SignupForm, Verification,AboutUs, NotFound,AllProducts, Profile, Logout, ViewProduct , PaymentSuccess,ContactMethods ,TermsAndConditions,PrivacyPolicy}
 
