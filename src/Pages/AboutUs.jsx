@@ -20,7 +20,7 @@ const teamMembers = [
     name: 'Yusuf',
     role: 'Supporter',
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=300&h=300',
-    bio: 'Marcus brings 2 years of mechanical  expertise, ensuring our parts meet the highest quality standards.'
+    bio: 'Marcus brings 2 years of mechanical expertise, ensuring our parts meet the highest quality standards.'
   },
   {
     name: 'VIRAL GOAT',
@@ -34,7 +34,6 @@ export function AboutUs() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-indigo-50">
       <Header />
-      
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-16">
@@ -48,6 +47,22 @@ export function AboutUs() {
             <p className="text-gray-600 leading-relaxed">
               Our commitment to quality, expertise in cycling technology, and dedication to customer satisfaction has made us a trusted name in the cycling community. We're not just selling parts; we're building lasting relationships with cyclists worldwide.
             </p>
+          </div>
+        </section>
+
+        {/* New Content: Our Commitment to Riders */}
+        <section className="mb-20">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-6 text-gray-900">Our Commitment to Riders</h2>
+            <p className="text-gray-600 mb-4 leading-relaxed">
+              At MOTOLAB, we believe that a great ride comes down to the perfect balance of performance, safety, and comfort. That's why we offer a wide range of products designed to support your cycling needs:
+            </p>
+            <ul className="text-gray-600 list-disc pl-6">
+              <li><strong>Durable Bike Lights:</strong> Stay visible on every ride with our high-quality bike lights, providing reliability and safety in low-light conditions.</li>
+              <li><strong>Ergonomic Saddles:</strong> Designed for comfort, our saddles ensure that you can ride longer without sacrificing comfort, no matter the terrain.</li>
+              <li><strong>High-Performance Pedals:</strong> Offering superior control, our pedals help you maintain grip and control, enhancing your overall cycling experience.</li>
+              <li><strong>Innovative Handlebars:</strong> Improve your bike's maneuverability with our handlebars, designed for optimal comfort and control, no matter the ride.</li>
+            </ul>
           </div>
         </section>
 
