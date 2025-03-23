@@ -51,18 +51,38 @@ export function AboutUs() {
         </section>
 
         {/* New Content: Our Commitment to Riders */}
-        <section className="mb-20">
+        <section className="mb-20 bg-white rounded-2xl p-8 shadow-lg">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-6 text-gray-900">Our Commitment to Riders</h2>
+            <h2 className="text-4xl font-bold mb-8 text-gray-900">Our Commitment to Riders</h2>
             <p className="text-gray-600 mb-4 leading-relaxed">
               At MOTOLAB, we believe that a great ride comes down to the perfect balance of performance, safety, and comfort. That's why we offer a wide range of products designed to support your cycling needs:
             </p>
-            <ul className="text-gray-600 list-disc pl-6">
-              <li><strong>Durable Bike Lights:</strong> Stay visible on every ride with our high-quality bike lights, providing reliability and safety in low-light conditions.</li>
-              <li><strong>Ergonomic Saddles:</strong> Designed for comfort, our saddles ensure that you can ride longer without sacrificing comfort, no matter the terrain.</li>
-              <li><strong>High-Performance Pedals:</strong> Offering superior control, our pedals help you maintain grip and control, enhancing your overall cycling experience.</li>
-              <li><strong>Innovative Handlebars:</strong> Improve your bike's maneuverability with our handlebars, designed for optimal comfort and control, no matter the ride.</li>
-            </ul>
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="text-center transform transition-all duration-300 hover:scale-105">
+                <h3 className="text-xl font-semibold mb-4 text-indigo-600">Durable Bike Lights</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Stay visible on every ride with our high-quality bike lights, providing reliability and safety in low-light conditions.
+                </p>
+              </div>
+              <div className="text-center transform transition-all duration-300 hover:scale-105">
+                <h3 className="text-xl font-semibold mb-4 text-indigo-600">Ergonomic Saddles</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Designed for comfort, our saddles ensure that you can ride longer without sacrificing comfort, no matter the terrain.
+                </p>
+              </div>
+              <div className="text-center transform transition-all duration-300 hover:scale-105">
+                <h3 className="text-xl font-semibold mb-4 text-indigo-600">High-Performance Pedals</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Offering superior control, our pedals help you maintain grip and control, enhancing your overall cycling experience.
+                </p>
+              </div>
+              <div className="text-center transform transition-all duration-300 hover:scale-105">
+                <h3 className="text-xl font-semibold mb-4 text-indigo-600">Innovative Handlebars</h3>
+                <p className="text-gray-600 leading-relaxed">
+                  Improve your bike's maneuverability with our handlebars, designed for optimal comfort and control, no matter the ride.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
