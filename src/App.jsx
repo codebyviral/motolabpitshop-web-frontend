@@ -14,7 +14,6 @@ import {
   ContactMethods,
   TermsAndConditions,
   PrivacyPolicy,
-  Verification,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
 
@@ -48,7 +47,9 @@ function App() {
           <Route path="/ContactMethods" element={<ContactMethods />} />
           <Route path="/TermsAndConditions" element={<TermsAndConditions />} />
           <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+          <Route path="*" element={<NotFound />} />
           <Route path="/verify-account" element={<Verification />} />
+
         </Routes>
       </div>
     </>
