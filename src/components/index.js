@@ -5,6 +5,7 @@ import Features from "./Features";
 import FeaturedProducts from "./FeaturedProducts";
 import NewsSection from "./NewsSection";
 import ProductCard from "./ProductCard";
+import ShareIcon from "./ShareIcon";
 import Footer from "./Footer";
 
 export {
@@ -15,5 +16,6 @@ export {
   FeaturedProducts,
   NewsSection,
   ProductCard,
+  ShareIcon,
   Footer,
 };

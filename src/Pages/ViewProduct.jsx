@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Footer, Header } from "../components";
+import { Footer, Header, ShareIcon } from "../components";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -287,7 +287,7 @@ const ViewProduct = () => {
           {/* Product Details */}
           <div className="w-full md:w-1/2">
             {/* Product Title */}
-            <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
+            <h1 className="text-2xl capitalize font-bold mb-2">{product.title}</h1>
 
             {/* Ratings */}
             <div className="flex items-center mb-4">
@@ -366,6 +366,7 @@ const ViewProduct = () => {
               >
                 Buy Now
               </motion.button>
+              <ShareIcon url={window.location.href} title={product.title} />
             </div>
 
             {/* Category */}
