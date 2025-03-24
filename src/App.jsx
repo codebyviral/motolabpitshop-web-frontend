@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
-import TurnstileWidget from "./components/TurnstilWidget.jsx"; // Import the widget
+import TurnstileWidget from "./components/TurnstilWidget.jsx";
 import {
   Home,
   LoginForm,
@@ -21,7 +21,7 @@ import {
   Verification,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
-import "./app.css"; // Import the CSS
+import "./app.css";
 
 function App() {
   const [isVerified, setIsVerified] = useState(false);
@@ -34,48 +34,45 @@ function App() {
 
   return (
     <>
-      <ToastContainer
-        position="top-center"
-        autoClose={2500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-      <div className="App">
-        {!isVerified ? (
-          <div className="turnstile-wrapper">
-            <h1>Welcome to Motolab</h1>
-            <p>Please complete the verification to continue:</p>
-            <TurnstileWidget onVerify={handleVerify} />
+      <ToastContainer />
+      {!isVerified ? (
+        <div className="verification-container">
+          <div className="verification-content">
+            <h1 className="verification-title">Welcome to Motolab</h1>
+            <p className="verification-text">
+              Please complete the verification to continue:
+            </p>
+            <div className="turnstile-wrapper">
+              <TurnstileWidget onVerify={handleVerify} />
+            </div>
           </div>
-        ) : (
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="/signup" element={<SignupForm />} />
-            <Route path="/your-account" element={<Profile />} />
-            <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/view-all-products" element={<AllProducts />} />
-            <Route path="/view-product/:id" element={<ViewProduct />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/ContactMethods" element={<ContactMethods />} />
-            <Route
-              path="/TermsAndConditions"
-              element={<TermsAndConditions />}
-            />
-            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
-            <Route path="*" element={<NotFound />} />
-            <Route path="/verify-account" element={<Verification />} />
-            <Route path="/my-cart" element={<Cart />} />
-          </Routes>
-        )}
-      </div>
+        </div>
+      ) : (
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignupForm />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/products" element={<AllProducts />} />
+          <Route path="/logout" element={<Logout />} />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+          <Route path="/product/:id" element={<ViewProduct />} />
+          <Route path="/success" element={<PaymentSuccess />} />
+          <Route path="/contact" element={<ContactMethods />} />
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/verify" element={<Verification />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      )}
     </>
   );
 }
