@@ -1,13 +1,3 @@
-<img src="https://r2cdn.perplexity.ai/pplx-full-logo-primary-dark%402x.png" class="logo" width="120"/>
-
-# 
-
----
-
-# remove google auth and give me text written readme file code all at once
-
-Here is the complete README code without Google authentication:
-
 ```markdown
 # MotoLabPitShop Frontend
 
@@ -143,12 +133,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 Project Maintainers: [Viral Vaghela, Divyesh Moraniya, Bhaskar Lekkala, Bhavya Parmar](mailto:your.email@example.com)
 ```
-
-Save this code into a file named `README.md`. Let me know if you need any additional modifications!
-
-<div style="text-align: center">⁂</div>
-
-[^1]: https://github.com/othneildrew/Best-README-Template
-
-[^2]: https://github.com/openedx/frontend-template-application/blob/master/README-template-frontend-app.rst
 
