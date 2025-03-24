@@ -2,7 +2,6 @@
 import { Route, Routes } from "react-router-dom";
 import PrivateRoute from "./components/PrivateRoute";
 
-
 import {
   Home,
   LoginForm,
@@ -16,7 +15,7 @@ import {
   ContactMethods,
   TermsAndConditions,
   PrivacyPolicy,
-
+  Cart,
   NotFound,
   Verification,
 } from "./Pages/index.js";
@@ -54,7 +53,7 @@ function App() {
           <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/verify-account" element={<Verification />} />
-
+          <Route path="/my-cart" element={<Cart />} />
         </Routes>
       </div>
     </>
