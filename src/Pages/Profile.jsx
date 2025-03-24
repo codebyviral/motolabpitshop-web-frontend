@@ -147,7 +147,7 @@ const Profile = () => {
         {/* Profile Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6 flex items-center">
           <img
-            src={"https://i.ibb.co/2178bTsx/motolab.jpg"}
+            src={import.meta.env.VITE_MOTOLAB_LOGO}
             alt="Profile"
             className="w-20 h-20 rounded-full object-cover border-2 border-yellow-400"
           />

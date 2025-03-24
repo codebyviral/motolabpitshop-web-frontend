@@ -258,6 +258,23 @@ const ViewProduct = () => {
     );
   }
 
+  const addToCart = async (productId, quantity) => {
+    try {
+      const cartResponse = await axios.post(
+        `${backendUrl}/api/get-user/add-to-cart`,
+        {
+          userId: localStorage.getItem("userId"),
+          productId,
+          quantity,
+        }
+      );
+      console.log(`Add to cart response :  ${cartResponse}`);
+      if (cartResponse.status === 200) toast(`Item Added to Cart!`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Determine the image source
   const imageSrc = Array.isArray(product.images)
     ? product.images[0]
@@ -287,7 +304,9 @@ const ViewProduct = () => {
           {/* Product Details */}
           <div className="w-full md:w-1/2">
             {/* Product Title */}
-            <h1 className="text-2xl capitalize font-bold mb-2">{product.title}</h1>
+            <h1 className="text-2xl capitalize font-bold mb-2">
+              {product.title}
+            </h1>
 
             {/* Ratings */}
             <div className="flex items-center mb-4">
@@ -353,6 +372,7 @@ const ViewProduct = () => {
             <div className="flex flex-col sm:flex-row gap-3">
               <motion.button
                 whileHover={{ scale: 1.05 }}
+                onClick={() => addToCart(id, quantity)}
                 whileTap={{ scale: 0.95 }}
                 className="bg-yellow-400 hover:bg-yellow-500 py-2 px-6 font-medium rounded"
               >

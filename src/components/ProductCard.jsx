@@ -35,7 +35,7 @@ const ProductCard = ({ product }) => {
           className="w-full h-64 object-cover transition duration-300 group-hover:scale-105"
         />
 
-        <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+        <div className="absolute hidden inset-0 bg-black bg-opacity-20  items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
           <div className="flex gap-2">
             <button className="bg-white p-2 rounded-full hover:bg-yellow-500 hover:text-white transition duration-300">
               <FaHeart />
