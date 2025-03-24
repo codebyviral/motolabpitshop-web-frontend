@@ -21,7 +21,7 @@ import {
   Verification,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
-import "./App.css"; // Import the CSS
+import "./app.css"; // Import the CSS
 
 function App() {
   const [isVerified, setIsVerified] = useState(false);
