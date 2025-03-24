@@ -11,54 +11,89 @@ const Profile = () => {
   const [user, setUser] = useState({
     name: "",
     email: "",
-    phone: "(555) 123-4567",
-    address: "123 Main Street, Anytown, USA",
+    phone: "",
+    address: [],
     profileImage: "/api/placeholder/100/100",
     isVerified: false,
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
   });
+  const [addressData, setAddressData] = useState({
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    pinCode: "",
+    phone: "",
+  });
   const [activeTab, setActiveTab] = useState("profile");
 
   const { LogoutUser } = useAuthContext();
-
   const backendUrl = import.meta.env.VITE_BACKEND;
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(`${backendUrl}/api/auth/user`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
-        console.log(response.data.isVerified);
+
         const userData = response.data.user;
+        
+        // Extract address details if available
+        const addressDetails = userData.address && userData.address.length > 0 
+          ? userData.address[0] 
+          : { addressLine1: "", addressLine2: "", city: "", state: "", pinCode: "" };
+
         setUser({
-          name: userData.fullName,
-          email: userData.email,
-          phone: user.phone,
-          address: user.address,
-          profileImage: user.profileImage || "/api/placeholder/100/100",
+          name: userData.fullName || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+          address: userData.address || [],
+          profileImage: userData.profileImage || "/api/placeholder/100/100",
           isVerified: userData.isVerified,
         });
 
         setFormData({
-          name: userData.fullName || " ",
-          email: userData.email || " ",
+          name: userData.fullName || "",
+          email: userData.email || "",
+        });
+
+        setAddressData({
+          addressLine1: addressDetails.addressLine1 || "",
+          addressLine2: addressDetails.addressLine2 || "",
+          city: addressDetails.city || "",
+          state: addressDetails.state || "",
+          pinCode: addressDetails.pinCode || "",
+          phone: userData.phone || "",
         });
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching user:", error);
+        toast.error("Failed to load user data");
       }
     };
-    fetchUser();
+
+    if (token) {
+      fetchUser();
+    }
   }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddressData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -74,29 +109,83 @@ const Profile = () => {
           email: formData.email,
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log(response);
+
       if (response.status === 200) {
-        // Update user state immediately after successful update
-        setUser((prevUser) => ({
-          ...prevUser,
+        setUser((prev) => ({
+          ...prev,
           name: formData.name,
           email: formData.email,
         }));
-
-        // Turn off edit mode
         setIsEditing(false);
+        toast.success("Profile updated successfully!");
       }
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error updating profile:", error);
+      toast.error(error.response?.data?.msg || "Failed to update profile");
+    }
+  };
+
+  const handleAddressSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Format address as an array of objects as expected by the backend
+      const formattedAddress = [{
+        addressLine1: addressData.addressLine1,
+        addressLine2: addressData.addressLine2,
+        city: addressData.city,
+        state: addressData.state,
+        pinCode: addressData.pinCode
+      }];
+
+      const response = await axios.put(
+        `${backendUrl}/api/auth/updateuser`,
+        {
+          address: formattedAddress,
+          phone: addressData.phone,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.status === 200) {
+        setUser((prev) => ({
+          ...prev,
+          address: formattedAddress,
+          phone: addressData.phone,
+        }));
+        setIsEditingAddress(false);
+        toast.success("Address updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error updating address:", error);
+      toast.error(error.response?.data?.msg || "Failed to update address");
     }
   };
 
   const handleLogout = () => {
     LogoutUser();
     navigate("/");
+  };
+
+  // Format address for display
+  const getFormattedAddress = () => {
+    if (user.address && user.address.length > 0) {
+      const addr = user.address[0];
+      const parts = [
+        addr.addressLine1,
+        addr.addressLine2,
+        addr.city,
+        addr.state,
+        addr.pinCode
+      ].filter(part => part && part.trim() !== '');
+      
+      return parts.join(', ');
+    }
+    return "No address saved";
   };
 
   const orderHistory = [
@@ -158,24 +247,19 @@ const Profile = () => {
             <p className="text-gray-600">Member since January 2023</p>
             <div className="mt-2">
               {user.isVerified ? (
-                <>
-                  <span
-                    onClick={() => toast.success(`We trust you! 🏍️`)}
-                    className="bg-yellow-400 text-black text-xs font-medium px-2.5 py-0.5 rounded-full mr-2"
-                  >
-                    Verified
-                  </span>
-                </>
+                <span
+                  onClick={() => toast.success(`We trust you! 🏍️`)}
+                  className="bg-yellow-400 text-black text-xs font-medium px-2.5 py-0.5 rounded-full mr-2"
+                >
+                  Verified
+                </span>
               ) : (
-                <>
-                  {" "}
-                  <span
-                    onClick={() => navigate(`/verify-account`)}
-                    className="bg-red-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2"
-                  >
-                    Not Verified
-                  </span>
-                </>
+                <span
+                  onClick={() => navigate(`/verify-account`)}
+                  className="bg-red-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2"
+                >
+                  Not Verified
+                </span>
               )}
             </div>
           </div>
@@ -218,6 +302,18 @@ const Profile = () => {
                 onClick={() => setActiveTab("wishlist")}
               >
                 Wishlist
+              </button>
+            </li>
+            <li className="mr-2">
+              <button
+                className={`inline-block p-4 ${
+                  activeTab === "Address"
+                    ? "text-yellow-600 border-b-2 border-yellow-500"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("Address")}
+              >
+                Address
               </button>
             </li>
           </ul>
@@ -265,7 +361,6 @@ const Profile = () => {
                         required
                       />
                     </div>
-                    {/* More form fields would go here */}
                   </div>
                   <div className="flex justify-end mt-6 space-x-3">
                     <button
@@ -296,15 +391,18 @@ const Profile = () => {
                       <h3 className="text-sm font-medium text-gray-500">
                         Full Name
                       </h3>
-                      <p className="text-gray-800 mt-1">{user.name}</p>
+                      <p className="text-gray-800 mt-1">
+                        {user.name || "Not provided"}
+                      </p>
                     </div>
                     <div>
                       <h3 className="text-sm font-medium text-gray-500">
                         Email Address
                       </h3>
-                      <p className="text-gray-800 mt-1">{user.email}</p>
+                      <p className="text-gray-800 mt-1">
+                        {user.email || "Not provided"}
+                      </p>
                     </div>
-                    {/* More user info would go here */}
                   </div>
                   <div className="flex justify-end mt-6">
                     <button
@@ -314,8 +412,6 @@ const Profile = () => {
                       Edit Profile
                     </button>
                   </div>
-
-                  {/* Additional sections like password change, preferences, etc. would go here */}
                 </>
               )}
             </>
@@ -409,6 +505,175 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Address Tab */}
+          {activeTab === "Address" && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Saved Address</h3>
+              {isEditingAddress ? (
+                <form onSubmit={handleAddressSubmit}>
+                  <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div className="space-y-4">
+                      <div>
+                        <label
+                          htmlFor="addressLine1"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Address Line 1
+                        </label>
+                        <input
+                          type="text"
+                          id="addressLine1"
+                          name="addressLine1"
+                          value={addressData.addressLine1}
+                          onChange={handleAddressChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="addressLine2"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Address Line 2
+                        </label>
+                        <input
+                          type="text"
+                          id="addressLine2"
+                          name="addressLine2"
+                          value={addressData.addressLine2}
+                          onChange={handleAddressChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="city"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            City
+                          </label>
+                          <input
+                            type="text"
+                            id="city"
+                            name="city"
+                            value={addressData.city}
+                            onChange={handleAddressChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="state"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            State
+                          </label>
+                          <input
+                            type="text"
+                            id="state"
+                            name="state"
+                            value={addressData.state}
+                            onChange={handleAddressChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label
+                            htmlFor="pinCode"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            PIN Code
+                          </label>
+                          <input
+                            type="text"
+                            id="pinCode"
+                            name="pinCode"
+                            value={addressData.pinCode}
+                            onChange={handleAddressChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                          />
+                        </div>
+                        <div>
+                          <label
+                            htmlFor="phone"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                          >
+                            Phone Number
+                          </label>
+                          <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={addressData.phone}
+                            onChange={handleAddressChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-end mt-4 space-x-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsEditingAddress(false);
+                          // Reset to current values
+                          const currentAddress = user.address && user.address.length > 0 
+                            ? user.address[0] 
+                            : { addressLine1: "", addressLine2: "", city: "", state: "", pinCode: "" };
+                          
+                          setAddressData({
+                            addressLine1: currentAddress.addressLine1 || "",
+                            addressLine2: currentAddress.addressLine2 || "",
+                            city: currentAddress.city || "",
+                            state: currentAddress.state || "",
+                            pinCode: currentAddress.pinCode || "",
+                            phone: user.phone || "",
+                          });
+                        }}
+                        className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 text-white bg-yellow-500 rounded-md hover:bg-yellow-600"
+                      >
+                        Save Address
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              ) : (
+                <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium text-gray-800">
+                        Primary Address
+                      </h4>
+                      <p className="text-gray-600 mt-1">
+                        {getFormattedAddress()}
+                      </p>
+                      <p className="text-gray-600">
+                        {user.phone || "No phone number saved"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setIsEditingAddress(true)}
+                      className="text-yellow-600 hover:text-yellow-800 text-sm font-medium"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

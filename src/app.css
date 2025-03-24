@@ -112,4 +112,6 @@
     font-style: italic;
   }
   
-  
+  .cloudflareContainer{
+    display: none;
+  }

@@ -18,6 +18,7 @@ const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [cartCounter, setCartCounter] = useState(0);
 
   const { isLoggedIn } = useAuthContext();
 
@@ -40,9 +41,33 @@ const Header = () => {
     }
   };
 
+  // cart counter
+  const fetchCart = async () => {
+    try {
+      const { data } = await axios.post(`${backendUrl}/api/get-user/cart`, {
+        userId: localStorage.getItem("userId"),
+      });
+      if (data.success && data.items.length > 0) {
+        // Calculate total quantity by summing up the quantity of each item
+        const totalQuantity = data.items.reduce((total, item) => {
+          return total + (item.quantity || 1); // Default to 1 if quantity is not defined
+        }, 0);
+
+        setCartCounter(totalQuantity);
+        localStorage.setItem("totalItems", totalQuantity);
+      } else {
+        setCartCounter(0);
+      }
+    } catch (error) {
+      console.log(`Error fetching cart: ${error}`);
+      setCartCounter(0);
+    }
+  };
+
   useEffect(() => {
     // googleLoginSuccess();
-  });
+    fetchCart();
+  }, []); // Added empty dependency array to prevent infinite loops
 
   return (
     <header className="w-full shadow-md">
@@ -94,10 +119,10 @@ const Header = () => {
               0
             </span>
           </button>
-          <button onClick={()=>navigate("/my-cart")} className="relative">
+          <button onClick={() => navigate("/my-cart")} className="relative">
             <FaShoppingCart size={20} />
             <span className="absolute -top-1.5 -right-1.5 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-              0
+              {localStorage.getItem("totalItems")}
             </span>
           </button>
         </div>

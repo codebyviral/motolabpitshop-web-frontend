@@ -3,9 +3,9 @@ import { Footer, Header, ShareIcon } from "../components";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import CheckoutModal from "../components/CheckoutModal"; // Import the modal component
-import { useAuthContext } from "../context/AuthContext"; // Import auth context
-import { motion } from "framer-motion"; // Import framer-motion for animations
+import CheckoutModal from "../components/CheckoutModal";
+import { useAuthContext } from "../context/AuthContext";
+import { motion } from "framer-motion";
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -14,13 +14,19 @@ const ViewProduct = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { isLoggedIn } = useAuthContext(); // Get login status
+  const { isLoggedIn } = useAuthContext();
   const backendUrl = import.meta.env.VITE_BACKEND;
-
+  
+  // New state for carousel and fullscreen view
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchProductData();
   }, [id]);
+  
+  // Removed autoplay effect for carousel
 
   const fetchProductData = async () => {
     setLoading(true);
@@ -194,6 +200,45 @@ const ViewProduct = () => {
       toast.error("Failed to process the order. Please try again.");
     }
   };
+  
+  // Carousel navigation functions
+  const nextImage = () => {
+    if (product && Array.isArray(product.images) && product.images.length > 1) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === product.images.length - 1 ? 0 : prevIndex + 1
+      );
+    }
+  };
+
+  const prevImage = () => {
+    if (product && Array.isArray(product.images) && product.images.length > 1) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? product.images.length - 1 : prevIndex - 1
+      );
+    }
+  };
+  
+  // Toggle fullscreen view
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const addToCart = async (productId, quantity) => {
+    try {
+      const cartResponse = await axios.post(
+        `${backendUrl}/api/get-user/add-to-cart`,
+        {
+          userId: localStorage.getItem("userId"),
+          productId,
+          quantity,
+        }
+      );
+      console.log(`Add to cart response :  ${cartResponse}`);
+      if (cartResponse.status === 200) toast(`Item Added to Cart!`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (loading) {
     return (
@@ -258,27 +303,12 @@ const ViewProduct = () => {
     );
   }
 
-  const addToCart = async (productId, quantity) => {
-    try {
-      const cartResponse = await axios.post(
-        `${backendUrl}/api/get-user/add-to-cart`,
-        {
-          userId: localStorage.getItem("userId"),
-          productId,
-          quantity,
-        }
-      );
-      console.log(`Add to cart response :  ${cartResponse}`);
-      if (cartResponse.status === 200) toast(`Item Added to Cart!`);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // Determine the image source
-  const imageSrc = Array.isArray(product.images)
-    ? product.images[0]
-    : product.images;
+  // Determine images for display
+  const productImages = Array.isArray(product.images) 
+    ? product.images 
+    : [product.images]; // Convert single image to array
+  
+  const currentImage = productImages[currentImageIndex];
 
   return (
     <>
@@ -290,14 +320,65 @@ const ViewProduct = () => {
           transition={{ duration: 0.6 }}
           className="flex flex-col md:flex-row gap-8"
         >
-          {/* Product Image */}
+          {/* Product Image Carousel */}
           <div className="w-full md:w-1/2">
-            <div className="border border-gray-200 rounded p-4">
-              <img
-                src={imageSrc}
-                alt={product.title}
-                className="w-full h-auto object-contain"
-              />
+            <div className="border border-gray-200 rounded p-4 relative">
+              {/* Main Image - Clickable for fullscreen */}
+              <div 
+                className="relative cursor-pointer overflow-hidden"
+                onClick={toggleFullscreen}
+                style={{ height: "400px", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <img
+                  src={currentImage}
+                  alt={`${product.title} - Image ${currentImageIndex + 1}`}
+                  className="max-w-full max-h-full object-contain transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+              
+              {/* Navigation Arrows - Only shown if multiple images */}
+              {productImages.length > 1 && (
+                <>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full shadow hover:bg-white focus:outline-none"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full shadow hover:bg-white focus:outline-none"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                </>
+              )}
+              
+              {/* Thumbnail indicators - Only shown if multiple images */}
+              {productImages.length > 1 && (
+                <div className="flex justify-center mt-4 space-x-2">
+                  {productImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        index === currentImageIndex ? 'bg-orange-500' : 'bg-gray-300'
+                      }`}
+                      aria-label={`View image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -406,6 +487,64 @@ const ViewProduct = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Fullscreen Image View Modal */}
+      {isFullscreen && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+          <div className="relative w-full h-full flex flex-col items-center justify-center">
+            {/* Close button */}
+            <button 
+              onClick={toggleFullscreen}
+              className="absolute top-4 right-4 bg-white rounded-full p-2 text-black hover:bg-gray-200 focus:outline-none"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+            
+            {/* Image display */}
+            <img 
+              src={currentImage} 
+              alt={`${product.title} - Fullscreen View`}
+              className="max-w-full max-h-[80vh] object-contain"
+            />
+            
+            {/* Navigation controls - only if multiple images */}
+            {productImages.length > 1 && (
+              <div className="w-full absolute bottom-10 left-0 flex justify-center space-x-4">
+                <button 
+                  onClick={prevImage}
+                  className="bg-white/20 hover:bg-white/40 rounded-full p-3 focus:outline-none"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+                <div className="flex items-center space-x-2">
+                  {productImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        index === currentImageIndex ? 'bg-white' : 'bg-gray-500'
+                      }`}
+                      aria-label={`View image ${index + 1}`}
+                    />
+                  ))}
+                </div>
+                <button 
+                  onClick={nextImage}
+                  className="bg-white/20 hover:bg-white/40 rounded-full p-3 focus:outline-none"
+                >
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Checkout Modal - only shown for non-logged in users */}
       {!isLoggedIn && (
