@@ -13,6 +13,7 @@ import {
 import { Header, Footer } from "../components/index";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const backendUrl = import.meta.env.VITE_BACKEND;
@@ -22,6 +23,8 @@ const Cart = () => {
   const [error, setError] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(false);
+
+  const navigate = useNavigate();
 
   // Fetch user's cart
   const fetchCart = async () => {
@@ -64,36 +67,19 @@ const Cart = () => {
   };
 
   useEffect(() => {
+    // window.scrollTo(0, 0);
     fetchCart();
     fetchUser();
+    console.log(cartItems);
   }, [userId]);
 
   // Handle quantity update
   const handleQuantityUpdate = async (id, action) => {
     try {
-      setIsUpdating(true);
-      const { data } = await axios.post(
-        `${backendUrl}/api/update-cart-quantity`,
-        {
-          userId,
-          productId: id,
-          action, // "increase" or "decrease"
-        }
-      );
-
-      if (data.success) {
-        setCartItems((prevItems) =>
-          prevItems.map((item) =>
-            item._id === id
-              ? {
-                  ...item,
-                  quantity: data.updatedQuantity,
-                }
-              : item
-          )
-        );
+      if (action == "increase") {
+        console.log("increasing item");
       } else {
-        toast.error("Failed to update quantity.");
+        console.log(`decreasing item`);
       }
     } catch (error) {
       toast.error("Error updating quantity.");
@@ -107,10 +93,13 @@ const Cart = () => {
   const handleRemove = async (id) => {
     try {
       setIsUpdating(true);
-      const { data } = await axios.post(`${backendUrl}/api/remove-from-cart`, {
-        userId,
-        productId: id,
-      });
+      const { data } = await axios.delete(
+        `${backendUrl}/api/get-user/delete-cart-item?user=${userId}&product=${id}`,
+        {
+          userId,
+          productId: id,
+        }
+      );
       if (data.success) {
         setCartItems((prevItems) =>
           prevItems.filter((item) => item._id !== id)
@@ -195,6 +184,10 @@ const Cart = () => {
                         {/* Image Container */}
                         <div className="w-24 h-24 rounded-lg overflow-hidden mr-5 border border-gray-200 shadow-sm">
                           <img
+                            onClick={() =>
+                              navigate(`/view-product/${item._id}`)
+                            }
+                            loading="lazy"
                             src={item.images[0]}
                             alt={item.title}
                             className="w-full h-full object-cover"

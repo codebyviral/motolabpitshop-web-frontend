@@ -54,7 +54,6 @@ const Header = () => {
         }, 0);
 
         setCartCounter(totalQuantity);
-        localStorage.setItem("totalItems", totalQuantity);
       } else {
         setCartCounter(0);
       }
@@ -122,7 +121,7 @@ const Header = () => {
           <button onClick={() => navigate("/my-cart")} className="relative">
             <FaShoppingCart size={20} />
             <span className="absolute -top-1.5 -right-1.5 bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-              {localStorage.getItem("totalItems")}
+              {cartCounter}
             </span>
           </button>
         </div>
