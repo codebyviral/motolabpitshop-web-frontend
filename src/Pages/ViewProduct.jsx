@@ -64,18 +64,18 @@ const ViewProduct = () => {
         `${backendUrl}/api/get-user/?user=${localStorage.getItem("userId")}`
       );
       console.log(res);
-      
+
       const user = res.data.userFound;
       const updatedUserDetails = {
         fullName: user.fullName || "",
         email: user.email || "",
         phone: user.phone || "",
-        address: user.address?.[0]?.addressLine1 || "", 
+        address: user.address?.[0]?.addressLine1 || "",
         city: user.address?.[0]?.city || "",
         state: user.address?.[0]?.state || "",
         pincode: user.address?.[0]?.pinCode || "",
       };
-      
+
       setUserDetails(updatedUserDetails);
       return updatedUserDetails; // Return the user details
     } catch (error) {
@@ -83,7 +83,6 @@ const ViewProduct = () => {
       return null;
     }
   };
-  
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -93,48 +92,49 @@ const ViewProduct = () => {
     }
   }, [id, isLoggedIn]);
 
-  // trim product description
-  function trimString(str) {
-    return str.length > 255 ? str.slice(0, 255) : str;
-}
-
   ////////////////////////////////
   //    Initialize Razorpay     //
   ////////////////////////////////
 
   const initiateRazorpayCheckout = async (userInfo = null) => {
     if (!product) return toast.error(`Product not found`);
-    
+
     try {
       // Get Razorpay key
-      const { data: { key } } = await axios.get(`${backendUrl}/api/get-key`);
-  
+      const {
+        data: { key },
+      } = await axios.get(`${backendUrl}/api/get-key`);
+
       // Checkout cart
       const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
         amount: product.price * quantity,
       });
-  
+
       if (checkoutResponse.status === 200) {
         console.log("checkoutResponse", checkoutResponse);
         console.log("Amount is ", checkoutResponse.data.order.amount);
-        
+
         // Get user details and wait for the response
         const userDetailsResponse = isLoggedIn ? await getUserDetails() : null;
-        
+
         // Use either the provided userInfo or the fetched userDetails
         const userData = userInfo || userDetailsResponse || {};
-        
+
         console.log("User data being used:", userData);
-  
+
+        const productDesc = `Purchase: ${product.title.slice(0, 200)}`;
+
         var options = {
           key: key,
           amount: checkoutResponse.data.order.amount / 100,
           currency: "INR",
           name: "Motolab PitShop",
-          description: await trimString(product.description),
+          description: productDesc,
           image: "https://i.ibb.co/2178bTsx/motolab.jpg",
           order_id: checkoutResponse.data.order.id,
-          callback_url: `${import.meta.env.VITE_BACKEND}/api/payment-verification`,
+          callback_url: `${
+            import.meta.env.VITE_BACKEND
+          }/api/payment-verification`,
           prefill: {
             name: userData.fullName || "",
             email: userData.email || "",
@@ -152,7 +152,7 @@ const ViewProduct = () => {
             color: "#FACC14",
           },
         };
-  
+
         const razor = new window.Razorpay(options);
         razor.open();
       }
