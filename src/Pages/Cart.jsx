@@ -399,7 +399,7 @@ const Cart = () => {
                 Looks like you haven't added any products to your cart yet.
               </p>
               <a
-                href="/products"
+                href="/view-all-products"
                 className="inline-block bg-yellow-400 text-black px-8 py-3 rounded-md font-medium hover:bg-yellow-500 transition duration-300 shadow-md"
               >
                 Start Shopping Now

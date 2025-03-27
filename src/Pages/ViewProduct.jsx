@@ -10,22 +10,31 @@ import { motion } from "framer-motion";
 const ViewProduct = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [userDetails, setUserDetails] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isLoggedIn } = useAuthContext();
   const backendUrl = import.meta.env.VITE_BACKEND;
-  
+
   // New state for carousel and fullscreen view
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  
+
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchProductData();
   }, [id]);
-  
+
   // Removed autoplay effect for carousel
 
   const fetchProductData = async () => {
@@ -51,73 +60,102 @@ const ViewProduct = () => {
   // Get user details by their ID
   const getUserDetails = async () => {
     try {
-      const userResponse = await axios.get(
+      const res = await axios.get(
         `${backendUrl}/api/get-user/?user=${localStorage.getItem("userId")}`
       );
-      console.log(userResponse);
+      console.log(res);
+      
+      const user = res.data.userFound;
+      const updatedUserDetails = {
+        fullName: user.fullName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        address: user.address?.[0]?.addressLine1 || "", 
+        city: user.address?.[0]?.city || "",
+        state: user.address?.[0]?.state || "",
+        pincode: user.address?.[0]?.pinCode || "",
+      };
+      
+      setUserDetails(updatedUserDetails);
+      return updatedUserDetails; // Return the user details
     } catch (error) {
       console.error(`Error getting user details: ${error}`);
+      return null;
     }
   };
+  
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    fetchProductData();
+    if (isLoggedIn) {
+      getUserDetails();
+    }
+  }, [id, isLoggedIn]);
+
+  // trim product description
+  function trimString(str) {
+    return str.length > 255 ? str.slice(0, 255) : str;
+}
+
+  ////////////////////////////////
+  //    Initialize Razorpay     //
+  ////////////////////////////////
 
   const initiateRazorpayCheckout = async (userInfo = null) => {
     if (!product) return toast.error(`Product not found`);
-
+    
     try {
       // Get Razorpay key
-      const {
-        data: { key },
-      } = await axios.get(`${backendUrl}/api/get-key`);
-
+      const { data: { key } } = await axios.get(`${backendUrl}/api/get-key`);
+  
       // Checkout cart
       const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
         amount: product.price * quantity,
       });
-
+  
       if (checkoutResponse.status === 200) {
-        // Checkout is successful
         console.log("checkoutResponse", checkoutResponse);
         console.log("Amount is ", checkoutResponse.data.order.amount);
-        const items = [];
-        items.push(product);
-        console.log("items", items);
-        // Fetch user shipping details before creating order
-        await getUserDetails();
+        
+        // Get user details and wait for the response
+        const userDetailsResponse = isLoggedIn ? await getUserDetails() : null;
+        
+        // Use either the provided userInfo or the fetched userDetails
+        const userData = userInfo || userDetailsResponse || {};
+        
+        console.log("User data being used:", userData);
+  
+        var options = {
+          key: key,
+          amount: checkoutResponse.data.order.amount / 100,
+          currency: "INR",
+          name: "Motolab PitShop",
+          description: await trimString(product.description),
+          image: "https://i.ibb.co/2178bTsx/motolab.jpg",
+          order_id: checkoutResponse.data.order.id,
+          callback_url: `${import.meta.env.VITE_BACKEND}/api/payment-verification`,
+          prefill: {
+            name: userData.fullName || "",
+            email: userData.email || "",
+            contact: userData.phone || "",
+          },
+          notes: {
+            address: userData.address || "",
+            city: userData.city || "",
+            state: userData.state || "",
+            pincode: userData.pincode || "",
+            quantity: quantity,
+            productId: id,
+          },
+          theme: {
+            color: "#FACC14",
+          },
+        };
+  
+        const razor = new window.Razorpay(options);
+        razor.open();
       }
-      // Configure Razorpay options with either user-provided info or logged-in user info
-      var options = {
-        key: key,
-        amount: checkoutResponse.data.order.amount / 100,
-        currency: "INR",
-        name: "Motolab PitShop",
-        description: product.description,
-        image: "https://i.ibb.co/2178bTsx/motolab.jpg",
-        order_id: checkoutResponse.data.order.id,
-        callback_url: `${
-          import.meta.env.VITE_BACKEND
-        }/api/payment-verification`,
-        prefill: {
-          // Use form data if provided, otherwise will be set by backend for logged-in users
-          name: userInfo?.fullName || "",
-          email: userInfo?.email || "",
-          contact: userInfo?.phone || "",
-        },
-        notes: {
-          address: userInfo?.address?.addressLine1 || "",
-          city: userInfo?.address?.city || "",
-          state: userInfo?.address?.state || "",
-          pincode: userInfo?.address?.pinCode || "",
-          quantity: quantity,
-          productId: id,
-        },
-        theme: {
-          color: "#FACC14",
-        },
-      };
-
-      // Initialize Razorpay
-      const razor = new window.Razorpay(options);
-      razor.open();
     } catch (error) {
       console.error("Error during checkout:", error);
       toast.error("Payment initialization failed. Please try again.");
@@ -200,7 +238,7 @@ const ViewProduct = () => {
       toast.error("Failed to process the order. Please try again.");
     }
   };
-  
+
   // Carousel navigation functions
   const nextImage = () => {
     if (product && Array.isArray(product.images) && product.images.length > 1) {
@@ -217,7 +255,7 @@ const ViewProduct = () => {
       );
     }
   };
-  
+
   // Toggle fullscreen view
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
@@ -304,10 +342,10 @@ const ViewProduct = () => {
   }
 
   // Determine images for display
-  const productImages = Array.isArray(product.images) 
-    ? product.images 
+  const productImages = Array.isArray(product.images)
+    ? product.images
     : [product.images]; // Convert single image to array
-  
+
   const currentImage = productImages[currentImageIndex];
 
   return (
@@ -324,10 +362,15 @@ const ViewProduct = () => {
           <div className="w-full md:w-1/2">
             <div className="border border-gray-200 rounded p-4 relative">
               {/* Main Image - Clickable for fullscreen */}
-              <div 
+              <div
                 className="relative cursor-pointer overflow-hidden"
                 onClick={toggleFullscreen}
-                style={{ height: "400px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{
+                  height: "400px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <img
                   src={currentImage}
@@ -335,35 +378,57 @@ const ViewProduct = () => {
                   className="max-w-full max-h-full object-contain transition-transform duration-300 hover:scale-105"
                 />
               </div>
-              
+
               {/* Navigation Arrows - Only shown if multiple images */}
               {productImages.length > 1 && (
                 <>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       prevImage();
                     }}
                     className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full shadow hover:bg-white focus:outline-none"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M15 19l-7-7 7-7"
+                      ></path>
                     </svg>
                   </button>
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       nextImage();
                     }}
                     className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/70 p-2 rounded-full shadow hover:bg-white focus:outline-none"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M9 5l7 7-7 7"
+                      ></path>
                     </svg>
                   </button>
                 </>
               )}
-              
+
               {/* Thumbnail indicators - Only shown if multiple images */}
               {productImages.length > 1 && (
                 <div className="flex justify-center mt-4 space-x-2">
@@ -372,7 +437,9 @@ const ViewProduct = () => {
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`w-3 h-3 rounded-full transition-colors ${
-                        index === currentImageIndex ? 'bg-orange-500' : 'bg-gray-300'
+                        index === currentImageIndex
+                          ? "bg-orange-500"
+                          : "bg-gray-300"
                       }`}
                       aria-label={`View image ${index + 1}`}
                     />
@@ -493,31 +560,53 @@ const ViewProduct = () => {
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
           <div className="relative w-full h-full flex flex-col items-center justify-center">
             {/* Close button */}
-            <button 
+            <button
               onClick={toggleFullscreen}
               className="absolute top-4 right-4 bg-white rounded-full p-2 text-black hover:bg-gray-200 focus:outline-none"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
               </svg>
             </button>
-            
+
             {/* Image display */}
-            <img 
-              src={currentImage} 
+            <img
+              src={currentImage}
               alt={`${product.title} - Fullscreen View`}
               className="max-w-full max-h-[80vh] object-contain"
             />
-            
+
             {/* Navigation controls - only if multiple images */}
             {productImages.length > 1 && (
               <div className="w-full absolute bottom-10 left-0 flex justify-center space-x-4">
-                <button 
+                <button
                   onClick={prevImage}
                   className="bg-white/20 hover:bg-white/40 rounded-full p-3 focus:outline-none"
                 >
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
                   </svg>
                 </button>
                 <div className="flex items-center space-x-2">
@@ -526,18 +615,29 @@ const ViewProduct = () => {
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`w-3 h-3 rounded-full transition-colors ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-gray-500'
+                        index === currentImageIndex ? "bg-white" : "bg-gray-500"
                       }`}
                       aria-label={`View image ${index + 1}`}
                     />
                   ))}
                 </div>
-                <button 
+                <button
                   onClick={nextImage}
                   className="bg-white/20 hover:bg-white/40 rounded-full p-3 focus:outline-none"
                 >
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
                   </svg>
                 </button>
               </div>
