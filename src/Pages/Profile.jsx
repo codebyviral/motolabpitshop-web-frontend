@@ -22,6 +22,7 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
   });
   const [addressData, setAddressData] = useState({
     addressLine1: "",
@@ -36,6 +37,10 @@ const Profile = () => {
   const { LogoutUser } = useAuthContext();
   const backendUrl = import.meta.env.VITE_BACKEND;
 
+  ///////////////////////////////////
+  ///// Fetch User Details //////////
+  ///////////////////////////////////
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -44,16 +49,23 @@ const Profile = () => {
         });
 
         const userData = response.data.user;
-        
+
         // Extract address details if available
-        const addressDetails = userData.address && userData.address.length > 0 
-          ? userData.address[0] 
-          : { addressLine1: "", addressLine2: "", city: "", state: "", pinCode: "" };
+        const addressDetails =
+          userData.address && userData.address.length > 0
+            ? userData.address[0]
+            : {
+                addressLine1: "",
+                addressLine2: "",
+                city: "",
+                state: "",
+                pinCode: "",
+              };
 
         setUser({
           name: userData.fullName || "",
           email: userData.email || "",
-          phone: userData.phone || "",
+          phone: userData.phoneNumber || "",
           address: userData.address || [],
           profileImage: userData.profileImage || "/api/placeholder/100/100",
           isVerified: userData.isVerified,
@@ -62,6 +74,7 @@ const Profile = () => {
         setFormData({
           name: userData.fullName || "",
           email: userData.email || "",
+          phone: userData.phoneNumber || "",
         });
 
         setAddressData({
@@ -72,6 +85,7 @@ const Profile = () => {
           pinCode: addressDetails.pinCode || "",
           phone: userData.phone || "",
         });
+        // console.log(userData);
       } catch (error) {
         console.error("Error fetching user:", error);
         toast.error("Failed to load user data");
@@ -99,6 +113,10 @@ const Profile = () => {
     }));
   };
 
+  ///////////////////////////////////
+  ///// Update User API /////////////
+  ///////////////////////////////////
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -107,6 +125,7 @@ const Profile = () => {
         {
           fullName: formData.name,
           email: formData.email,
+          phone: Number(formData.phone),
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -118,27 +137,35 @@ const Profile = () => {
           ...prev,
           name: formData.name,
           email: formData.email,
+          phone: formData.phone,
         }));
         setIsEditing(false);
         toast.success("Profile updated successfully!");
       }
+      console.log(response);
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error(error.response?.data?.msg || "Failed to update profile");
     }
   };
 
+  ///////////////////////////////////
+  ///// Update User Address ////////
+  /////////////////////////////////
+
   const handleAddressSubmit = async (e) => {
     e.preventDefault();
     try {
       // Format address as an array of objects as expected by the backend
-      const formattedAddress = [{
-        addressLine1: addressData.addressLine1,
-        addressLine2: addressData.addressLine2,
-        city: addressData.city,
-        state: addressData.state,
-        pinCode: addressData.pinCode
-      }];
+      const formattedAddress = [
+        {
+          addressLine1: addressData.addressLine1,
+          addressLine2: addressData.addressLine2,
+          city: addressData.city,
+          state: addressData.state,
+          pinCode: addressData.pinCode,
+        },
+      ];
 
       const response = await axios.put(
         `${backendUrl}/api/auth/updateuser`,
@@ -180,10 +207,10 @@ const Profile = () => {
         addr.addressLine2,
         addr.city,
         addr.state,
-        addr.pinCode
-      ].filter(part => part && part.trim() !== '');
-      
-      return parts.join(', ');
+        addr.pinCode,
+      ].filter((part) => part && part.trim() !== "");
+
+      return parts.join(", ");
     }
     return "No address saved";
   };
@@ -238,6 +265,7 @@ const Profile = () => {
           <img
             src={import.meta.env.VITE_MOTOLAB_LOGO}
             alt="Profile"
+            draggable="false"
             className="w-20 h-20 rounded-full object-cover border-2 border-yellow-400"
           />
           <div className="ml-6">
@@ -256,7 +284,7 @@ const Profile = () => {
               ) : (
                 <span
                   onClick={() => navigate(`/verify-account`)}
-                  className="bg-red-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full mr-2"
+                  className="bg-red-100 text-yellow-800 text-xs font-medium cursor-pointer px-2.5 py-0.5 rounded-full mr-2"
                 >
                   Not Verified
                 </span>
@@ -361,6 +389,23 @@ const Profile = () => {
                         required
                       />
                     </div>
+                    <div>
+                      <label
+                        htmlFor="phone"
+                        className="block mb-2 text-sm font-medium text-gray-700"
+                      >
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="flex justify-end mt-6 space-x-3">
                     <button
@@ -370,6 +415,7 @@ const Profile = () => {
                         setFormData({
                           name: user.name,
                           email: user.email,
+                          phone: user.phone,
                         });
                       }}
                       className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
@@ -401,6 +447,14 @@ const Profile = () => {
                       </h3>
                       <p className="text-gray-800 mt-1">
                         {user.email || "Not provided"}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500">
+                        Phone Number
+                      </h3>
+                      <p className="text-gray-800 mt-1">
+                        {user.phone || "Not provided"}
                       </p>
                     </div>
                   </div>
@@ -625,10 +679,17 @@ const Profile = () => {
                         onClick={() => {
                           setIsEditingAddress(false);
                           // Reset to current values
-                          const currentAddress = user.address && user.address.length > 0 
-                            ? user.address[0] 
-                            : { addressLine1: "", addressLine2: "", city: "", state: "", pinCode: "" };
-                          
+                          const currentAddress =
+                            user.address && user.address.length > 0
+                              ? user.address[0]
+                              : {
+                                  addressLine1: "",
+                                  addressLine2: "",
+                                  city: "",
+                                  state: "",
+                                  pinCode: "",
+                                };
+
                           setAddressData({
                             addressLine1: currentAddress.addressLine1 || "",
                             addressLine2: currentAddress.addressLine2 || "",
