@@ -1,12 +1,13 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
-import { Footer, Header, ShareIcon } from "../components";
+import { Footer, Header, SadEmojiSvg, ShareIcon } from "../components";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import CheckoutModal from "../components/CheckoutModal";
 import { useAuthContext } from "../context/AuthContext";
 import { motion } from "framer-motion";
+import Loader from "../components/Loader";
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -76,6 +77,15 @@ const ViewProduct = () => {
         state: user.address?.[0]?.state || "",
         pincode: user.address?.[0]?.pinCode || "",
       };
+
+      // Add this check for Tamil Nadu
+      if (
+        updatedUserDetails.state === "Tamil Nadu" ||
+        updatedUserDetails.state === "tamil nadu"
+      ) {
+        setDeliveryCharge(false);
+      }
+
       setUserDetails(updatedUserDetails);
       return updatedUserDetails;
     } catch (error) {
@@ -99,11 +109,9 @@ const ViewProduct = () => {
       const {
         data: { key },
       } = await axios.get(`${backendUrl}/api/get-key`);
-
-      let shippingCharges = deliveryCharge ? 150 : 0;
-
+      const deliveryPrice = deliveryCharge ? 150 : 0;
       const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
-        amount: product.price * quantity + shippingCharges,
+        amount: product.price * quantity + deliveryPrice,
       });
 
       if (checkoutResponse.status === 200) {
@@ -167,10 +175,6 @@ const ViewProduct = () => {
         setTimeout(() => navigate("/your-account"), 500);
         return;
       }
-
-      const state = userDetails.state;
-      if (state === "Tamil Nadu" || state === "tamil nadu")
-        setDeliveryCharge(false);
 
       initiateRazorpayCheckout({
         fullName: userDetails.fullName,
@@ -313,19 +317,7 @@ const ViewProduct = () => {
   if (loading) {
     return (
       <>
-        <Header />
-        <div className="max-w-6xl mx-auto p-4 flex flex-col items-center justify-center min-h-[400px]">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col items-center"
-          >
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-orange-500 mb-4"></div>
-            <p className="text-gray-600">Loading product details...</p>
-          </motion.div>
-        </div>
-        <Footer />
+        <Loader />
       </>
     );
   }
@@ -341,19 +333,7 @@ const ViewProduct = () => {
             transition={{ duration: 0.6 }}
             className="text-center py-10 px-6 max-w-md bg-white rounded-lg shadow-md"
           >
-            <svg
-              className="mx-auto h-16 w-16 text-gray-400 mb-4"
-              stroke="currentColor"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+            <SadEmojiSvg />
             <h2 className="text-2xl font-bold text-gray-700 mb-2">
               Product Not Available
             </h2>
@@ -600,8 +580,7 @@ const ViewProduct = () => {
                   ))}
                 </div>
                 <span className="text-sm text-gray-600 mr-4">
-                  {product.rating} ({Math.floor(Math.random() * 100) + 20}{" "}
-                  reviews)
+                  {product.rating} (10 reviews)
                 </span>
                 <span className="text-sm text-green-600 font-medium">
                   <svg
@@ -622,26 +601,25 @@ const ViewProduct = () => {
                 </span>
               </div>
 
-              {/* Price with Discount Badge */}
+              {/* Price with Discount Badge - Fixed 10% off */}
               <div className="mb-6">
                 <div className="flex items-center">
                   <span className="text-3xl font-bold text-gray-900 mr-3">
                     ₹{product.price.toLocaleString("en-IN")}
                   </span>
-                  {product.price > 1000 && (
-                    <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-                      {Math.floor(Math.random() * 20) + 5}% OFF
-                    </span>
-                  )}
+                  <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                    10% OFF
+                  </span>
                 </div>
-                {product.price > 1000 && (
-                  <div className="text-sm text-gray-500 mt-1">
-                    <s>₹{(product.price * 1.2).toLocaleString("en-IN")}</s>
-                    <span className="ml-2 text-green-600">
-                      Save ₹{(product.price * 0.2).toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                )}
+                <div className="text-sm text-gray-500 mt-1">
+                  <s>₹{(product.price / 0.9).toLocaleString("en-IN")}</s>
+                  <span className="ml-2 text-green-600">
+                    Save ₹
+                    {(product.price / 0.9 - product.price).toLocaleString(
+                      "en-IN"
+                    )}
+                  </span>
+                </div>
               </div>
 
               {/* Shipping Info */}

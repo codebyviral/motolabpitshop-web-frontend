@@ -7,6 +7,7 @@ import NewsSection from "./NewsSection";
 import ProductCard from "./ProductCard";
 import ShareIcon from "./ShareIcon";
 import Footer from "./Footer";
+import SadEmojiSvg from "./SadEmojiSvg";
 
 export {
   PrivateRoute,
@@ -17,5 +18,6 @@ export {
   NewsSection,
   ProductCard,
   ShareIcon,
+  SadEmojiSvg,
   Footer,
 };

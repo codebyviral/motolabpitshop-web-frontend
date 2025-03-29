@@ -18,6 +18,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuthContext } from "../context/AuthContext";
+import CheckoutModal from "../components/CheckoutModal";
 
 const Cart = () => {
   const backendUrl = import.meta.env.VITE_BACKEND;
@@ -28,7 +30,17 @@ const Cart = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(false);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
-
+  const [userDetails, setUserDetails] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isLoggedIn } = useAuthContext();
   const navigate = useNavigate();
 
   // Fetch user's cart
@@ -74,8 +86,11 @@ const Cart = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchCart();
-    fetchUser();
-  }, [userId]);
+    if (isLoggedIn) {
+      fetchUser();
+      getUserDetails();
+    }
+  }, [userId, isLoggedIn]);
 
   // Handle quantity update
   const handleQuantityUpdate = async (id, action) => {
@@ -150,17 +165,198 @@ const Cart = () => {
     }
   };
 
-  // Handle checkout
-  const handleCheckout = async () => {
+  // get userDetails
+  const getUserDetails = async () => {
     try {
-      setIsProcessingCheckout(true);
-      // Checkout logic would go here
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate processing
-      navigate("/checkout");
+      const res = await axios.get(
+        `${backendUrl}/api/get-user/?user=${localStorage.getItem("userId")}`
+      );
+      const user = res.data.userFound;
+      const updatedUserDetails = {
+        fullName: user.fullName || "",
+        email: user.email || "",
+        phone: user.phoneNumber || "",
+        address: user.address?.[0]?.addressLine1 || "",
+        city: user.address?.[0]?.city || "",
+        state: user.address?.[0]?.state || "",
+        pincode: user.address?.[0]?.pinCode || "",
+      };
+      setUserDetails(updatedUserDetails);
+      return updatedUserDetails;
     } catch (error) {
-      toast.error("Error processing checkout");
-    } finally {
+      console.error(`Error getting user details: ${error}`);
+      return null;
+    }
+  };
+
+  // Razorpay payment integration
+  const initiateRazorpayCheckout = async (userInfo = null) => {
+    if (!cartItems || cartItems.length === 0)
+      return toast.error(`Cart is empty`);
+
+    try {
+      const {
+        data: { key },
+      } = await axios.get(`${backendUrl}/api/get-key`);
+
+      let shippingCharges = deliveryCharge ? 150 : 0;
+      const totalAmount =
+        cartItems.reduce(
+          (total, item) => total + item.price * (item.quantity || 1),
+          0
+        ) + shippingCharges;
+
+      const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
+        amount: totalAmount,
+      });
+
+      if (checkoutResponse.status === 200) {
+        const userDetailsResponse = isLoggedIn ? await getUserDetails() : null;
+        const userData = userInfo || userDetailsResponse || {};
+
+        const productDesc = `Purchase of ${cartItems.length} item(s) from Motolab PitShop`;
+
+        var options = {
+          key: key,
+          amount: checkoutResponse.data.order.amount / 100,
+          currency: "INR",
+          name: "Motolab PitShop",
+          description: productDesc,
+          image: "https://i.ibb.co/2178bTsx/motolab.jpg",
+          order_id: checkoutResponse.data.order.id,
+          callback_url: `${
+            import.meta.env.VITE_BACKEND
+          }/api/payment-verification`,
+          prefill: {
+            name: userData.fullName || "",
+            email: userData.email || "",
+            contact: userData.phone || "",
+          },
+          notes: {
+            address: userData.address || "",
+            city: userData.city || "",
+            state: userData.state || "",
+            pincode: userData.pincode || "",
+            items: JSON.stringify(
+              cartItems.map((item) => ({
+                productId: item._id,
+                quantity: item.quantity,
+                price: item.price,
+              }))
+            ),
+            userId: userId || "guest",
+          },
+          theme: {
+            color: "#FACC14",
+          },
+        };
+
+        const razor = new window.Razorpay(options);
+        razor.open();
+      }
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      toast.error("Payment initialization failed. Please try again.");
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (isLoggedIn) {
+      const userDetailsResponse = await getUserDetails();
+
+      if (
+        !userDetailsResponse.address ||
+        !userDetailsResponse.city ||
+        !userDetailsResponse.state ||
+        !userDetailsResponse.pincode ||
+        !userDetailsResponse.phone
+      ) {
+        toast.error(
+          "Please add your address/phone in your profile before making a purchase."
+        );
+        setTimeout(() => navigate("/your-account"), 500);
+        return;
+      }
+
+      const state = userDetails.state;
+      if (state === "Tamil Nadu" || state === "tamil nadu")
+        setDeliveryCharge(false);
+
+      setIsProcessingCheckout(true);
+      await initiateRazorpayCheckout({
+        fullName: userDetails.fullName,
+        email: userDetails.email,
+        phone: userDetails.phone,
+        address: userDetails.address,
+        city: userDetails.city,
+        state: userDetails.state,
+        pincode: userDetails.pincode,
+      });
       setIsProcessingCheckout(false);
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const placeOrder = async (formData) => {
+    try {
+      const order_response = await axios.post(
+        `${backendUrl}/api/order/create-guest-order`,
+        {
+          fullName: formData.fullName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          address: {
+            addressLine1: formData.addressLine1,
+            addressLine2: formData.addressLine2,
+            city: formData.city,
+            state: formData.state,
+            pinCode: formData.pincode,
+          },
+          items: cartItems.map((item) => ({
+            product: item._id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          totalAmount:
+            cartItems.reduce(
+              (total, item) => total + item.price * (item.quantity || 1),
+              0
+            ) + (deliveryCharge ? 150 : 0),
+          shippingAddress: `${formData.addressLine1}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+        }
+      );
+      console.log("Order created:", order_response.data);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      throw error;
+    }
+  };
+
+  const handleFormSubmit = async (formData) => {
+    try {
+      const formattedData = {
+        ...formData,
+        address: {
+          addressLine1: formData.addressLine1,
+          addressLine2: formData.addressLine2,
+          city: formData.city,
+          state: formData.state,
+          pinCode: formData.pincode,
+        },
+      };
+
+      await placeOrder(formattedData);
+      initiateRazorpayCheckout(formattedData);
+      setIsModalOpen(false);
+      toast.success("Redirecting to payment gateway...");
+    } catch (error) {
+      console.error("Error during form submission:", error);
+      toast.error("Failed to process the order. Please try again.");
     }
   };
 
@@ -487,15 +683,6 @@ const Cart = () => {
                         )}
                       </div>
 
-                      {subtotal > 5000 && (
-                        <div className="flex justify-between items-center text-green-600">
-                          <span>Discount (Free Shipping)</span>
-                          <span className="font-medium">
-                            -{formatCurrency(150)}
-                          </span>
-                        </div>
-                      )}
-
                       <div className="border-t border-gray-200 pt-4 mt-4">
                         <div className="flex justify-between items-center font-bold text-lg text-gray-900">
                           <span>Total</span>
@@ -543,22 +730,15 @@ const Cart = () => {
                       <div className="flex flex-wrap gap-2">
                         <div className="w-12 h-8 bg-gray-100 rounded-md flex items-center justify-center">
                           <img
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg"
+                            src="https://i.ibb.co/Lhvt9d4F/download.png"
                             alt="Visa"
                             className="h-5"
                           />
                         </div>
                         <div className="w-12 h-8 bg-gray-100 rounded-md flex items-center justify-center">
                           <img
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg"
+                            src="https://i.ibb.co/qF0MR6nb/image.png"
                             alt="Mastercard"
-                            className="h-5"
-                          />
-                        </div>
-                        <div className="w-12 h-8 bg-gray-100 rounded-md flex items-center justify-center">
-                          <img
-                            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg"
-                            alt="Apple Pay"
                             className="h-5"
                           />
                         </div>
@@ -626,6 +806,17 @@ const Cart = () => {
         </div>
       </div>
       <Footer />
+
+      {/* Checkout Modal for guest users */}
+      {!isLoggedIn && (
+        <CheckoutModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSubmit={handleFormSubmit}
+          cartItems={cartItems}
+          totalAmount={total}
+        />
+      )}
     </>
   );
 };
