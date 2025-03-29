@@ -41,8 +41,8 @@ const LoginForm = () => {
       );
 
       if (res.status === 200) {
-        toast.success("Login Successful!");
         storeTokenInLocalStorage(res.data.token);
+        if (localStorage.getItem("token")) toast.success(`Login Successful`);
         console.log(localStorage.getItem("token"));
         storeUserId(res.data.userId);
         storeAccountStatus(res.data.isVerified);

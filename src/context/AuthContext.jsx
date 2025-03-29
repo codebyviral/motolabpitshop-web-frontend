@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("userId");
     localStorage.removeItem("isAdmin");
     localStorage.removeItem("verified")
+    localStorage.removeItem("totalItems")
     setIsLoggedIn(false);
   };
 

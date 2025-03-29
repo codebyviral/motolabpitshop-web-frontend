@@ -1,3 +1,86 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* CUSTOM Toastify */
+
+/* Custom React Toastify styles to match Motolab PitShop theme */
+.Toastify__toast-container {
+  font-family: "Arial", sans-serif;
+  max-width: 350px;
+}
+
+/* Default toast style */
+.Toastify__toast {
+  border-radius: 4px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  color: #242933;
+  border-left: 4px solid #f0c14b;
+}
+
+/* Success toast - gold color like website buttons */
+.Toastify__toast--success {
+  background-color: #fff;
+  border-left: 4px solid #f0c14b;
+}
+
+.Toastify__toast--success .Toastify__toast-icon {
+  color: #f0c14b;
+}
+
+/* Info toast - blue tint */
+.Toastify__toast--info {
+  background-color: #fff;
+  border-left: 4px solid #4682b4;
+}
+
+.Toastify__toast--info .Toastify__toast-icon {
+  color: #4682b4;
+}
+
+/* Warning toast - orange like the "Buy Now" button */
+.Toastify__toast--warning {
+  background-color: #fff;
+  border-left: 4px solid #e78c38;
+}
+
+.Toastify__toast--warning .Toastify__toast-icon {
+  color: #e78c38;
+}
+
+/* Keep Error toast as is with red styling */
+.Toastify__toast--error {
+  background-color: #fff;
+  border-left: 4px solid #e74c3c;
+}
+
+.Toastify__toast--error .Toastify__toast-icon {
+  color: #e74c3c;
+}
+
+/* Progress bar */
+.Toastify__progress-bar {
+  background: #f0c14b;
+}
+
+.Toastify__progress-bar--error {
+  background: #e74c3c;
+}
+
+/* Close button */
+.Toastify__close-button {
+  color: #242933;
+  opacity: 0.7;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+/* Toast body */
+.Toastify__toast-body {
+  font-size: 14px;
+  line-height: 1.5;
+}
