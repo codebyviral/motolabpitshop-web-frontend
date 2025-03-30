@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import {
   ShoppingCart,
@@ -211,6 +212,8 @@ const Cart = () => {
       });
 
       if (checkoutResponse.status === 200) {
+        const rzp_cart_purchase_id = checkoutResponse.data.order.id;
+        localStorage.setItem("rzp_cart_oid",rzp_cart_purchase_id)
         const userDetailsResponse = isLoggedIn ? await getUserDetails() : null;
         const userData = userInfo || userDetailsResponse || {};
 
@@ -260,6 +263,36 @@ const Cart = () => {
     }
   };
 
+  const createCustomerOrder = async () => {
+    try {
+      const deliveryPrice = deliveryCharge ? 150 : 0;
+
+      // Mapping cartItems to the required format
+      const productItems = cartItems.map((product) => ({
+        product: product, // Extracting product ID
+        quantity: product.quantity,
+        price: product.price * product.quantity + deliveryPrice,
+      }));
+
+      console.log("productItems", productItems);
+
+      const orderData = {
+        userId: localStorage.getItem("userId"),
+        razorpayOrderId: await localStorage.getItem("rzp_cart_oid"),
+        phoneNumber: userDetails.phone,
+        shippingaddress: userDetails.address,
+        items: productItems, // Assigning the formatted array
+      };
+
+      const customerOrderResponse = await axios.post(
+        `${backendUrl}/api/order/create`,
+        orderData
+      );
+    } catch (error) {
+      console.log(`Error creating customer order: ${error}`);
+    }
+  };
+
   const handleCheckout = async () => {
     if (isLoggedIn) {
       const userDetailsResponse = await getUserDetails();
@@ -291,6 +324,10 @@ const Cart = () => {
         city: userDetails.city,
         state: userDetails.state,
         pincode: userDetails.pincode,
+      });
+      setTimeout(async () => {
+        toast.success(`Please Wait while we confirm your order.`);
+        await createCustomerOrder();
       });
       setIsProcessingCheckout(false);
     } else {

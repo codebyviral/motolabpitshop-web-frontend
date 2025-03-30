@@ -1,68 +1,91 @@
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
-import axios from "axios";
+import { useOrderContext } from "../context/OrderContext";
 
 const PaymentSuccess = () => {
   const searchQuery = useSearchParams()[0];
   const referenceNum = searchQuery.get("reference");
 
-  const backendUrl = import.meta.env.VITE_BACKEND;
-
-  // create a order
-
-  const createOrder = async () => {
-    try {
-      const response = await axios.post(`${backendUrl}`);
-    } catch (error) {
-      console.log(`Error creating order:${error}`);
-    }
-  };
+  const { clearOrderData } = useOrderContext();
 
   useEffect(() => {
-    createOrder();
+    clearOrderData();
+    localStorage.removeItem("rzp_order_id");
+    localStorage.removeItem("rzp_cart_oid");
   });
 
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-amber-50 flex items-center justify-center p-4 sm:p-6 md:p-8">
-      <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 max-w-md w-full text-center border border-yellow-100">
-        <div className="mb-4 sm:mb-6">
-          <div className="mx-auto bg-yellow-100 rounded-full h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center mb-3 sm:mb-4">
-            <svg
-              className="h-8 w-8 sm:h-10 sm:w-10 text-yellow-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4 sm:p-6 md:p-8">
+      <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-10 max-w-md w-full text-center overflow-hidden relative">
+        {/* Decorative elements */}
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-yellow-500"></div>
+        <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-yellow-50 opacity-60"></div>
+        <div className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-yellow-50 opacity-60"></div>
+
+        {/* Main content */}
+        <div className="relative z-10">
+          <div className="mx-auto flex justify-center mb-6">
+            <div className="bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full h-20 w-20 flex items-center justify-center shadow-lg">
+              <svg
+                className="h-10 w-10 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+            </div>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 uppercase tracking-wide mb-1 sm:mb-2">
+
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
             Payment Successful
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-            Thank you for your purchase!
+          <p className="text-gray-600 mb-6">
+            Your order has been processed successfully
           </p>
-        </div>
 
-        <div className="bg-gray-50 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-          <p className="text-xs sm:text-sm text-gray-500 mb-1">
-            Reference Number
-          </p>
-          <p className="text-base sm:text-lg font-semibold text-gray-800">
-            {referenceNum}
-          </p>
-        </div>
+          <div className="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-100">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-500">
+                Reference #
+              </span>
+              <span className="text-sm font-medium text-gray-500">Status</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-base font-semibold text-gray-800">
+                {referenceNum}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                Completed
+              </span>
+            </div>
+          </div>
 
-        <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 sm:py-3 px-4 rounded-lg transition-colors duration-200 text-sm sm:text-base">
-          View Order Details
-        </button>
+          <div className="space-y-3">
+            <button onClick={()=>navigate("/your-account")} className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+              View Order Details
+            </button>
+            <button onClick={()=> navigate("/view-all-products")} className="w-full bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-gray-50">
+              Continue Shopping
+            </button> 
+          </div>
+
+          <div className="mt-6 text-xs text-gray-400">
+            <p>
+              A confirmation email has been sent to your registered email
+              address
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

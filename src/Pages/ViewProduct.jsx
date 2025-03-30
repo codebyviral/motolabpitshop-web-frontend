@@ -6,11 +6,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import CheckoutModal from "../components/CheckoutModal";
 import { useAuthContext } from "../context/AuthContext";
+import { useOrderContext } from "../context/OrderContext";
 import { motion } from "framer-motion";
 import Loader from "../components/Loader";
 
 const ViewProduct = () => {
   const { id } = useParams();
+  const backendUrl = import.meta.env.VITE_BACKEND;
   const [product, setProduct] = useState(null);
   const [userDetails, setUserDetails] = useState({
     fullName: "",
@@ -26,10 +28,20 @@ const ViewProduct = () => {
   const [error, setError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(true);
-  const { isLoggedIn } = useAuthContext();
-  const backendUrl = import.meta.env.VITE_BACKEND;
+  const [newOrderId, setNewOrderId] = useState("");
 
-  // Enhanced state for carousel and fullscreen view
+  ////////////////////////////////////////////////////////////////
+  //                   order context api hook                   //
+  ////////////////////////////////////////////////////////////////
+
+  const { updateOrderId, updateRzpId, rzpId, orderId, clearOrderData } =
+    useOrderContext();
+  const { isLoggedIn } = useAuthContext();
+
+  ////////////////////////////////////////////////////////////////
+  //               carousel and fullscreen states               //
+  ////////////////////////////////////////////////////////////////
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
@@ -61,6 +73,10 @@ const ViewProduct = () => {
       setLoading(false);
     }
   };
+
+  ////////////////////////////////////////////////////////////////
+  //                     fetch user details                     //
+  ////////////////////////////////////////////////////////////////
 
   const getUserDetails = async () => {
     try {
@@ -102,24 +118,27 @@ const ViewProduct = () => {
     }
   }, [id, isLoggedIn]);
 
-  const initiateRazorpayCheckout = async (userInfo = null) => {
-    if (!product) return toast.error(`Product not found`);
+  ////////////////////////////////////////////////////////////////
+  //                  razorpay payment gateway                  //
+  ////////////////////////////////////////////////////////////////
 
+  const initiateRazorpayCheckout = async (userInfo = null) => {
+    console.log(`userDetails:`, userDetails);
+    if (!product) return toast.error(`Product not found`);
     try {
-      const {
-        data: { key },
-      } = await axios.get(`${backendUrl}/api/get-key`);
+      const {data: { key },} = await axios.get(`${backendUrl}/api/get-key`);
       const deliveryPrice = deliveryCharge ? 150 : 0;
       const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
         amount: product.price * quantity + deliveryPrice,
       });
-
+      console.log("checkoutResponse", checkoutResponse);
       if (checkoutResponse.status === 200) {
+        const rzp_id = checkoutResponse.data.order.id;
+        localStorage.setItem("rzp_order_id", rzp_id);
         const userDetailsResponse = isLoggedIn ? await getUserDetails() : null;
         const userData = userInfo || userDetailsResponse || {};
 
         const productDesc = `Purchase: ${product.title.slice(0, 200)}`;
-
         var options = {
           key: key,
           amount: checkoutResponse.data.order.amount / 100,
@@ -155,8 +174,48 @@ const ViewProduct = () => {
     } catch (error) {
       console.error("Error during checkout:", error);
       toast.error("Payment initialization failed. Please try again.");
+    } finally {
+      // clearOrderData();
     }
   };
+
+  ////////////////////////////////////////////////////////////////
+  //               customer checkout place order                //
+  ////////////////////////////////////////////////////////////////
+
+  const createCustomerOrder = async () => {
+    let productItems = [];
+    productItems.push(product);
+    const deliveryPrice = deliveryCharge ? 150 : 0;
+    try {
+      console.log("productItems", product);
+      const orderData = {
+        userId: localStorage.getItem("userId"),
+        razorpayOrderId: await localStorage.getItem("rzp_order_id"),
+        phoneNumber: userDetails.phone,
+        shippingaddress: userDetails.address,
+        items: [
+          {
+            product: product._id, // Send just the product ID
+            quantity: quantity,
+            price: product.price * quantity + deliveryPrice,
+          },
+        ],
+      };
+      const customerOrderResponse = await axios.post(
+        `${backendUrl}/api/order/create`,
+        orderData
+      );
+      // updateOrderId(customerOrderResponse.data.order.id);
+      setNewOrderId(customerOrderResponse.data.order.id);
+    } catch (error) {
+      console.log(`Error creating customer order: ${error}`);
+    }
+  };
+
+  ////////////////////////////////////////////////////////////////
+  //                handle checkout for customer                //
+  ////////////////////////////////////////////////////////////////
 
   const handleCheckout = async () => {
     if (isLoggedIn) {
@@ -175,8 +234,7 @@ const ViewProduct = () => {
         setTimeout(() => navigate("/your-account"), 500);
         return;
       }
-
-      initiateRazorpayCheckout({
+      await initiateRazorpayCheckout({
         fullName: userDetails.fullName,
         email: userDetails.email,
         phone: userDetails.phone,
@@ -185,6 +243,10 @@ const ViewProduct = () => {
         state: userDetails.state,
         pincode: userDetails.pincode,
       });
+      setTimeout(async () => {
+        toast.success(`Please Wait while we confirm your order.`);
+        await createCustomerOrder();
+      }, 2500);
     } else {
       setIsModalOpen(true);
     }
@@ -193,6 +255,10 @@ const ViewProduct = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+
+  ////////////////////////////////////////////////////////////////
+  //                 guest checkout place order                 //
+  ////////////////////////////////////////////////////////////////
 
   const placeOrder = async (formData) => {
     try {
@@ -226,6 +292,10 @@ const ViewProduct = () => {
       throw error;
     }
   };
+
+  ////////////////////////////////////////////////////////////////
+  //                 guest checkout form submit                 //
+  ////////////////////////////////////////////////////////////////
 
   const handleFormSubmit = async (formData) => {
     try {
