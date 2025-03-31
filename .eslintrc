@@ -1,0 +1,6 @@
+{
+    "extends": [],
+    "rules": {
+        "indent": "error"
+    }
+}

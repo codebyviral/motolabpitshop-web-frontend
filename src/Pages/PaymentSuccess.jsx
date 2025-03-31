@@ -2,15 +2,29 @@ import React from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useOrderContext } from "../context/OrderContext";
+import axios from "axios";
 
 const PaymentSuccess = () => {
   const searchQuery = useSearchParams()[0];
   const referenceNum = searchQuery.get("reference");
-
+  const userId = localStorage.getItem("userId");
+  const backendUrl = import.meta.env.VITE_BACKEND;
   const { clearOrderData } = useOrderContext();
+
+  const clearCartItems = async () => {
+    try {
+      const cartClearResponse = await axios.delete(
+        `${backendUrl}/api/product/delete-cart-items?userId=${userId}`
+      );
+      console.log("cartClearResponse", cartClearResponse);
+    } catch (error) {
+      console.log(`Error during clearing cart Items: ${error}`);
+    }
+  };
 
   useEffect(() => {
     clearOrderData();
+    clearCartItems();
     localStorage.removeItem("rzp_order_id");
     localStorage.removeItem("rzp_cart_oid");
   });
@@ -71,12 +85,18 @@ const PaymentSuccess = () => {
           </div>
 
           <div className="space-y-3">
-            <button onClick={()=>navigate("/your-account")} className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+            <button
+              onClick={() => navigate("/your-account")}
+              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+            >
               View Order Details
             </button>
-            <button onClick={()=> navigate("/view-all-products")} className="w-full bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-gray-50">
+            <button
+              onClick={() => navigate("/view-all-products")}
+              className="w-full bg-white border border-gray-200 hover:border-gray-300 text-gray-700 font-medium py-3 px-4 rounded-lg transition-all duration-200 hover:bg-gray-50"
+            >
               Continue Shopping
-            </button> 
+            </button>
           </div>
 
           <div className="mt-6 text-xs text-gray-400">
