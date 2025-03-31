@@ -4,6 +4,15 @@
   font-family: "Poppins", sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom React Toastify styles to match Motolab PitShop theme */
+.Toastify__toast {
+  font-family: "Poppins", sans-serif !important;
+}
+
 .poppins-thin {
   font-family: "Poppins", sans-serif;
   font-weight: 100;

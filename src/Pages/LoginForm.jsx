@@ -191,14 +191,14 @@ const LoginForm = () => {
           </form>
 
           {/* Divider */}
-          <div className="flex items-center my-6">
+          {/* <div className="flex items-center my-6">
             <div className="flex-grow border-t border-gray-300"></div>
             <span className="flex-shrink mx-4 text-gray-600 text-sm">OR</span>
             <div className="flex-grow border-t border-gray-300"></div>
-          </div>
+          </div> */}
 
           {/* Google Login Button with Loading State */}
-          <button
+          {/* <button
             onClick={handleGoogleLogin}
             type="button"
             className="w-full flex justify-center items-center bg-white border border-gray-300 rounded-md py-3 px-4 text-gray-700 hover:bg-gray-50 transition duration-200"
@@ -255,7 +255,7 @@ const LoginForm = () => {
                 Continue with Google
               </>
             )}
-          </button>
+          </button> */}
 
           {/* Register Link */}
           <div className="text-center mt-6">

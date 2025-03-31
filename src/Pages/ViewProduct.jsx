@@ -244,7 +244,7 @@ const ViewProduct = () => {
         pincode: userDetails.pincode,
       });
       setTimeout(async () => {
-        toast.success(`Please Wait while we confirm your order.`);
+        toast.success("Payment processing... Please do not refresh or go back.");
         await createCustomerOrder();
       }, 2500);
     } else {

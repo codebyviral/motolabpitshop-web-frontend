@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Header, Footer } from "../components/index";
 import { useAuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
 const Profile = () => {
   const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [user, setUser] = useState({
     name: "",
@@ -16,6 +17,7 @@ const Profile = () => {
     profileImage: "/api/placeholder/100/100",
     isVerified: false,
   });
+  const [userOrders, setUserOrders] = useState([]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -36,6 +38,10 @@ const Profile = () => {
 
   const { LogoutUser } = useAuthContext();
   const backendUrl = import.meta.env.VITE_BACKEND;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   ///////////////////////////////////
   ///// Fetch User Details //////////
@@ -96,6 +102,34 @@ const Profile = () => {
       fetchUser();
     }
   }, [token]);
+
+  ///////////////////////////////////
+  ///// Fetch User Orders //////////
+  ///////////////////////////////////
+
+  useEffect(() => {
+    const fetchUserOrders = async () => {
+      try {
+        const response = await axios.get(
+          `${backendUrl}/api/get/user-order?userId=${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (response.data && response.data.userOrders) {
+          setUserOrders(response.data.userOrders);
+        }
+      } catch (error) {
+        console.error("Error fetching user orders:", error);
+        toast.error("Failed to load order history");
+      }
+    };
+
+    if (token && userId) {
+      fetchUserOrders();
+    }
+  }, [token, userId, backendUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -215,21 +249,35 @@ const Profile = () => {
     return "No address saved";
   };
 
-  const orderHistory = [
-    {
-      id: "#M12345",
-      date: "2025-03-10",
-      total: "$249.99",
-      status: "Delivered",
-    },
-    { id: "#M12289", date: "2025-02-22", total: "$89.95", status: "Shipped" },
-    {
-      id: "#M12100",
-      date: "2025-02-05",
-      total: "$356.45",
-      status: "Processing",
-    },
-  ];
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  // Group orders by orderId
+  const groupedOrders = userOrders.reduce((acc, order) => {
+    if (!acc[order.orderId]) {
+      acc[order.orderId] = {
+        id: order.orderId,
+        date: order.placedAt,
+        status: order.orderStatus,
+        items: [],
+        total: 0,
+      };
+    }
+
+    acc[order.orderId].items.push(order);
+    acc[order.orderId].total += order.price * order.quantity;
+
+    return acc;
+  }, {});
+
+  const orderHistory = Object.values(groupedOrders);
 
   const wishlistItems = [
     {
@@ -245,6 +293,10 @@ const Profile = () => {
       image: "/api/placeholder/60/60",
     },
   ];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <>
@@ -472,45 +524,31 @@ const Profile = () => {
           )}
 
           {/* Order History Tab */}
+          {/* Order History Tab */}
           {activeTab === "orders" && (
             <div>
-              <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
-                  <thead>
-                    <tr>
-                      <th className="py-2 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Order ID
-                      </th>
-                      <th className="py-2 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="py-2 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Total
-                      </th>
-                      <th className="py-2 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="py-2 px-4 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {orderHistory.map((order) => (
-                      <tr key={order.id}>
-                        <td className="py-3 px-4 text-sm text-gray-800">
-                          {order.id}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-800">
-                          {order.date}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-800">
-                          {order.total}
-                        </td>
-                        <td className="py-3 px-4 text-sm">
+              <h3 className="text-xl font-bold text-gray-800 mb-6">
+                Order History
+              </h3>
+              {orderHistory.length > 0 ? (
+                <div className="space-y-6">
+                  {orderHistory.map((order) => (
+                    <div
+                      key={order.id}
+                      className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-200"
+                    >
+                      <div className="p-4 md:p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center flex-wrap gap-3">
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Order #{order.id.substring(order.id.length - 6)}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            Placed on {formatDate(order.date)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
                           <span
-                            className={`px-2 py-1 text-xs rounded-full ${
+                            className={`px-3 py-1 text-xs rounded-full ${
                               order.status === "Delivered"
                                 ? "bg-green-100 text-green-800"
                                 : order.status === "Shipped"
@@ -520,17 +558,100 @@ const Profile = () => {
                           >
                             {order.status}
                           </span>
-                        </td>
-                        <td className="py-3 px-4 text-sm">
-                          <button className="text-blue-600 hover:text-blue-800">
-                            View
+                          <button
+                            onClick={() => {
+                              console.log(order);
+                              navigate(`/order-status/${order.id}`);
+                            }}
+                            className="text-sm font-medium text-yellow-600 hover:text-yellow-700"
+                          >
+                            View Details
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
+
+                      <div className="p-4 md:p-5">
+                        <div className="space-y-4">
+                          {order.items.map((item) => (
+                            <div
+                              key={item.productId}
+                              className="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0"
+                            >
+                              <img
+                                src={item.image}
+                                alt={item.title}
+                                className="w-16 h-16 object-cover rounded-md border border-gray-200 cursor-pointer flex-shrink-0"
+                                onClick={() =>
+                                  navigate(`/view-product/${item.productId}`)
+                                }
+                              />
+                              <div className="flex-grow">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h4 className="font-medium text-gray-800">
+                                      {item.title}
+                                    </h4>
+                                    <p className="text-sm text-gray-500 mt-1">
+                                      Quantity: {item.quantity}
+                                    </p>
+                                  </div>
+                                  <p className="text-gray-800 font-medium">
+                                    ₹{(item.price * item.quantity).toFixed(2)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                          <p className="text-sm text-gray-500">
+                            {order.items.length} item
+                            {order.items.length > 1 ? "s" : ""}
+                          </p>
+                          <p className="text-lg font-semibold text-gray-800">
+                            Total: ₹{order.total.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
+                  <div className="max-w-md mx-auto">
+                    <svg
+                      className="w-16 h-16 mx-auto text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                    <h3 className="mt-4 text-lg font-medium text-gray-900">
+                      No orders yet
+                    </h3>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Your order history will appear here once you make a
+                      purchase.
+                    </p>
+                    <div className="mt-6">
+                      <button
+                        onClick={() => navigate("/products")}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none"
+                      >
+                        Browse Products
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

@@ -12,6 +12,7 @@ import TermsAndConditions from "./TermsAndConditions";
 import PrivacyPolicy from "./PrivacyPolicy";
 import NotFound from "./NotFound";
 import Verification from "./Verification";
+import OrderStatus from "./OrderStatus";
 import Cart from "./Cart";
 
 export {
@@ -24,6 +25,7 @@ export {
   NotFound,
   AllProducts,
   Profile,
+  OrderStatus,
   Logout,
   ViewProduct,
   PaymentSuccess,

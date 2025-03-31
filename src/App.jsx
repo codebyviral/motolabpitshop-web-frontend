@@ -18,6 +18,7 @@ import {
   Cart,
   NotFound,
   Verification,
+  OrderStatus,
 } from "./Pages/index.js";
 import { ToastContainer } from "react-toastify";
 
@@ -53,6 +54,7 @@ function App() {
           <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/verify-account" element={<Verification />} />
+          <Route path="/order-status/:orderId" element={<OrderStatus />} />
           <Route path="/my-cart" element={<Cart />} />
         </Routes>
       </div>
