@@ -14,6 +14,16 @@ const AllProductsCategory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Sync categoryFilter with URL parameter
+  useEffect(() => {
+    // Update filter state when URL changes
+    if (urlCategory) {
+      setCategoryFilter(urlCategory);
+    } else {
+      setCategoryFilter('All');
+    }
+  }, [urlCategory]); // Runs when URL category changes
+
   const getProducts = async () => {
     try {
       setLoading(true);

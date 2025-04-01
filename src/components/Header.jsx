@@ -194,7 +194,7 @@ const Header = () => {
                     // href='/'
                     key={category._id}
                     onClick={() => handleCategoryClick(category.category)}
-                    className='block px-4 py-2 hover:bg-gray-100'
+                    className='block cursor-pointer px-4 py-2 hover:bg-gray-100'
                   >
                     {category.category}
                   </a>

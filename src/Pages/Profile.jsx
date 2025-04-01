@@ -23,6 +23,8 @@ const Profile = () => {
   const [ratings, setRatings] = useState({}); // { orderId1: rating1, orderId2: rating2 }
   const [hoverStates, setHoverStates] = useState({}); // { orderId1: hoverRating1, orderId2: hoverRating2 }
   const [rateColor, setRateColor] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -55,6 +57,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        setLoadingUser(true);
         const response = await axios.get(`${backendUrl}/api/auth/user`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -96,10 +99,11 @@ const Profile = () => {
           pinCode: addressDetails.pinCode || '',
           phone: userData.phone || '',
         });
-        // console.log(userData);
       } catch (error) {
         console.error('Error fetching user:', error);
         toast.error('Failed to load user data');
+      } finally {
+        setLoadingUser(false);
       }
     };
 
@@ -115,6 +119,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserOrders = async () => {
       try {
+        setLoadingOrders(true);
         const response = await axios.get(
           `${backendUrl}/api/get/user-order?userId=${userId}`,
           {
@@ -128,6 +133,8 @@ const Profile = () => {
       } catch (error) {
         console.error('Error fetching user orders:', error);
         toast.error('Failed to load order history');
+      } finally {
+        setLoadingOrders(false);
       }
     };
 
@@ -319,35 +326,48 @@ const Profile = () => {
 
         {/* Profile Header */}
         <div className='bg-white rounded-lg shadow-md p-6 mb-6 flex items-center'>
-          <img
-            src={import.meta.env.VITE_MOTOLAB_LOGO}
-            alt='Profile'
-            draggable='false'
-            className='w-20 h-20 rounded-full object-cover border-2 border-yellow-400'
-          />
-          <div className='ml-6'>
-            <h2 className='text-2xl font-semibold text-gray-800'>
-              {user.name}
-            </h2>
-            <p className='text-gray-600'>Member since January 2023</p>
-            <div className='mt-2'>
-              {user.isVerified ? (
-                <span
-                  onClick={() => toast.success(`We trust you! 🏍️`)}
-                  className='bg-yellow-400 text-black text-xs font-medium px-2.5 py-0.5 rounded-full mr-2'
-                >
-                  Verified
-                </span>
-              ) : (
-                <span
-                  onClick={() => navigate(`/verify-account`)}
-                  className='bg-red-100 text-yellow-800 text-xs font-medium cursor-pointer px-2.5 py-0.5 rounded-full mr-2'
-                >
-                  Not Verified
-                </span>
-              )}
+          {loadingUser ? (
+            <div className='flex items-center w-full'>
+              <div className='w-20 h-20 rounded-full bg-gray-200 animate-pulse'></div>
+              <div className='ml-6 space-y-2 flex-grow'>
+                <div className='h-6 w-3/4 bg-gray-200 rounded animate-pulse'></div>
+                <div className='h-4 w-1/2 bg-gray-200 rounded animate-pulse'></div>
+                <div className='h-4 w-1/4 bg-gray-200 rounded animate-pulse'></div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <img
+                src={import.meta.env.VITE_MOTOLAB_LOGO}
+                alt='Profile'
+                draggable='false'
+                className='w-20 h-20 rounded-full object-cover border-2 border-yellow-400'
+              />
+              <div className='ml-6'>
+                <h2 className='text-2xl font-semibold text-gray-800'>
+                  {user.name}
+                </h2>
+                <p className='text-gray-600'>Member since January 2023</p>
+                <div className='mt-2'>
+                  {user.isVerified ? (
+                    <span
+                      onClick={() => toast.success(`We trust you! 🏍️`)}
+                      className='bg-yellow-400 text-black text-xs font-medium px-2.5 py-0.5 rounded-full mr-2'
+                    >
+                      Verified
+                    </span>
+                  ) : (
+                    <span
+                      onClick={() => navigate(`/verify-account`)}
+                      className='bg-red-100 text-yellow-800 text-xs font-medium cursor-pointer px-2.5 py-0.5 rounded-full mr-2'
+                    >
+                      Not Verified
+                    </span>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Tabs */}
@@ -377,18 +397,6 @@ const Profile = () => {
                 Order History
               </button>
             </li>
-            {/* <li className='mr-2'>
-              <button
-                className={`inline-block p-4 ${
-                  activeTab === 'wishlist'
-                    ? 'text-yellow-600 border-b-2 border-yellow-500'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('wishlist')}
-              >
-                Wishlist
-              </button>
-            </li> */}
             <li className='mr-2'>
               <button
                 className={`inline-block p-4 ${
@@ -409,7 +417,21 @@ const Profile = () => {
           {/* Profile Details Tab */}
           {activeTab === 'profile' && (
             <>
-              {isEditing ? (
+              {loadingUser ? (
+                <div className='space-y-6'>
+                  <div className='grid md:grid-cols-2 gap-6'>
+                    {[...Array(4)].map((_, index) => (
+                      <div key={index}>
+                        <div className='h-4 w-1/3 bg-gray-200 rounded animate-pulse mb-2'></div>
+                        <div className='h-10 w-full bg-gray-200 rounded animate-pulse'></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className='flex justify-end mt-6'>
+                    <div className='h-10 w-32 bg-gray-200 rounded animate-pulse'></div>
+                  </div>
+                </div>
+              ) : isEditing ? (
                 <form onSubmit={handleSubmit}>
                   <div className='grid md:grid-cols-2 gap-6'>
                     <div>
@@ -529,13 +551,50 @@ const Profile = () => {
           )}
 
           {/* Order History Tab */}
-          {/* Order History Tab */}
           {activeTab === 'orders' && (
             <div>
               <h3 className='text-xl font-bold text-gray-800 mb-6'>
                 Order History
               </h3>
-              {orderHistory.length > 0 ? (
+              {loadingOrders ? (
+                <div className='space-y-6'>
+                  {[...Array(2)].map((_, index) => (
+                    <div
+                      key={index}
+                      className='bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden'
+                    >
+                      <div className='p-4 md:p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center'>
+                        <div className='space-y-2'>
+                          <div className='h-4 w-24 bg-gray-200 rounded animate-pulse'></div>
+                          <div className='h-3 w-32 bg-gray-200 rounded animate-pulse'></div>
+                        </div>
+                        <div className='h-6 w-20 bg-gray-200 rounded animate-pulse'></div>
+                      </div>
+                      <div className='p-4 md:p-5'>
+                        <div className='space-y-4'>
+                          {[...Array(2)].map((_, itemIndex) => (
+                            <div
+                              key={itemIndex}
+                              className='flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0'
+                            >
+                              <div className='w-16 h-16 bg-gray-200 rounded-md animate-pulse'></div>
+                              <div className='flex-grow space-y-2'>
+                                <div className='h-4 w-3/4 bg-gray-200 rounded animate-pulse'></div>
+                                <div className='h-3 w-1/2 bg-gray-200 rounded animate-pulse'></div>
+                              </div>
+                              <div className='h-4 w-12 bg-gray-200 rounded animate-pulse'></div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className='mt-4 pt-4 border-t border-gray-100 flex justify-between items-center'>
+                          <div className='h-3 w-20 bg-gray-200 rounded animate-pulse'></div>
+                          <div className='h-5 w-24 bg-gray-200 rounded animate-pulse'></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : orderHistory.length > 0 ? (
                 <div className='space-y-6'>
                   {orderHistory.map((order) => (
                     <div
@@ -704,39 +763,26 @@ const Profile = () => {
             </div>
           )}
 
-          {/* Wishlist Tab
-          {activeTab === 'wishlist' && (
-            <div>
-              <h3 className='text-lg font-semibold mb-4'>My Wishlist</h3>
-              <div className='grid md:grid-cols-2 gap-4'>
-                {wishlistItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className='flex items-center p-4 border rounded-lg'
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className='w-16 h-16 object-cover'
-                    />
-                    <div className='ml-4 flex-grow'>
-                      <h4 className='font-medium text-gray-800'>{item.name}</h4>
-                      <p className='text-yellow-600'>{item.price}</p>
-                    </div>
-                    <button className='px-3 py-1 text-sm text-white bg-yellow-500 rounded hover:bg-yellow-600'>
-                      Add to Cart
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )} */}
-
           {/* Address Tab */}
           {activeTab === 'Address' && (
             <div>
               <h3 className='text-lg font-semibold mb-4'>Saved Address</h3>
-              {isEditingAddress ? (
+              {loadingUser ? (
+                <div className='bg-gray-50 p-4 rounded-lg mb-4 space-y-4'>
+                  <div className='space-y-2'>
+                    {[...Array(5)].map((_, index) => (
+                      <div key={index}>
+                        <div className='h-4 w-1/4 bg-gray-200 rounded animate-pulse mb-1'></div>
+                        <div className='h-10 w-full bg-gray-200 rounded animate-pulse'></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className='flex justify-end mt-4 space-x-3'>
+                    <div className='h-10 w-20 bg-gray-200 rounded animate-pulse'></div>
+                    <div className='h-10 w-32 bg-gray-200 rounded animate-pulse'></div>
+                  </div>
+                </div>
+              ) : isEditingAddress ? (
                 <form onSubmit={handleAddressSubmit}>
                   <div className='bg-gray-50 p-4 rounded-lg mb-4'>
                     <div className='space-y-4'>
