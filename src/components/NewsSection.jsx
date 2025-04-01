@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+
 
 const NewsSection = () => {
+  const navigate = useNavigate();
   return (
     <div className="py-16">
       <div className="container mx-auto px-4">
@@ -15,7 +18,7 @@ const NewsSection = () => {
                 Discover our new collection of high-performance motorcycle gear
                 engineered for both safety and style.
               </p>
-              <button className="font-medium flex items-center group">
+              <button onClick={()=> navigate("/view-all-products")} className="font-medium flex items-center group">
                 <span className="relative">
                   SHOP NOW
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
@@ -43,7 +46,7 @@ const NewsSection = () => {
                 Upgrade your motorcycle with our professionally tested
                 performance parts and accessories.
               </p>
-              <button className="font-medium flex items-center group">
+              <button onClick={()=> navigate("/view-all-products")} className="font-medium flex items-center group">
                 <span className="relative">
                   SHOP NOW
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>

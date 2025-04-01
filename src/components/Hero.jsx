@@ -24,7 +24,7 @@ const Hero = () => {
   ];
 
   return (
-    <div className="relative py-16 overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100">
+    <div className="relative py-16 overflow-hidden bg-gradient-to-r ">
       {/* Background Overlay */}
       <div className="absolute inset-0 opacity-10 z-0"></div>
 
@@ -71,7 +71,7 @@ const Hero = () => {
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.3 }}
-                  className="w-full h-full overflow-hidden rounded-lg shadow-2xl"
+                  className="w-full h-full overflow-hidden rounded-none-lg shadow-2xl"
                 >
                   <img
                     src={image}
@@ -80,7 +80,7 @@ const Hero = () => {
                   />
                 </motion.div>
                 {/* Overlay Badge */}
-                <div className="absolute bottom-4 left-4 bg-gradient-to-r from-gray-900 to-gray-700 px-4 py-2 rounded-full shadow-lg text-sm font-medium text-white tracking-wide uppercase flex items-center gap-1">
+                <div className="absolute bottom-4 left-4 bg-gradient-to-r from-gray-900 to-gray-700 px-4 py-2 rounded-none-full shadow-lg text-sm font-medium text-white tracking-wide uppercase flex items-center gap-1">
                   <span className="text-yellow-400">★</span> Top Rated Gear
                 </div>
               </div>

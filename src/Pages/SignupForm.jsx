@@ -63,7 +63,7 @@ const SignupForm = () => {
     <>
       <Header />
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8 m-4">
+        <div className="w-full max-w-md bg-white shadow-md p-8 m-4">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Create an Account
@@ -85,7 +85,7 @@ const SignupForm = () => {
               <input
                 type="text"
                 id="fullName"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-3 border border-gray-300 rounded-none-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="Enter your full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -104,7 +104,7 @@ const SignupForm = () => {
               <input
                 type="email"
                 id="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-3 border border-gray-300 rounded-none-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -123,7 +123,7 @@ const SignupForm = () => {
               <input
                 type="password"
                 id="password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-3 border border-gray-300 rounded-none-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -134,7 +134,7 @@ const SignupForm = () => {
             {/* Signup Button */}
             <button
               type="submit"
-              className="w-full bg-gray-800 text-white py-3 rounded-md font-medium uppercase tracking-wide hover:bg-gray-900 transition duration-200 flex justify-center items-center"
+              className="w-full bg-gray-800 text-white py-3 rounded-none-md font-medium uppercase tracking-wide hover:bg-gray-900 transition duration-200 flex justify-center items-center"
               disabled={signupLoading || googleLoading}
             >
               {signupLoading ? (
@@ -177,7 +177,7 @@ const SignupForm = () => {
           {/* <button
             onClick={handleGoogleSignup}
             type="button"
-            className="w-full flex justify-center items-center bg-white border border-gray-300 rounded-md py-3 px-4 text-gray-700 hover:bg-gray-50 transition duration-200"
+            className="w-full flex justify-center items-center bg-white border border-gray-300 rounded-none-md py-3 px-4 text-gray-700 hover:bg-gray-50 transition duration-200"
             disabled={signupLoading || googleLoading}
           >
             {googleLoading ? (
