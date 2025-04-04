@@ -47,8 +47,6 @@ const Header = () => {
   const getCategories = async () => {
     try {
       const res = await axios.get(`${backendUrl}/api/product/get-categories`);
-      console.log(res);
-      // Fetch the first 5 categories
       setCategories(res.data.categories.slice(0, 5));
     } catch (error) {
       console.log(`Error getting categories`);

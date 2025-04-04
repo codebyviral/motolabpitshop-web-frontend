@@ -9,6 +9,7 @@ import { useAuthContext } from '../context/AuthContext';
 import { useOrderContext } from '../context/OrderContext';
 import { motion } from 'framer-motion';
 import Loader from '../components/Loader';
+import { CgUnavailable } from 'react-icons/cg';
 
 const ViewProduct = () => {
   const { id } = useParams();
@@ -61,6 +62,7 @@ const ViewProduct = () => {
       const { data } = await axios.post(`${backendUrl}/api/product/get-by-id`, {
         productId: id,
       });
+      console.log(data);
       if (data.success && data.product) {
         setProduct(data.product);
       } else {
@@ -675,23 +677,33 @@ const ViewProduct = () => {
                 <span className='text-sm text-gray-600 mr-4'>
                   {product.rating} (10 reviews)
                 </span>
-                <span className='text-sm text-green-600 font-medium'>
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-4 w-4 inline mr-1'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M5 13l4 4L19 7'
-                    />
-                  </svg>
-                  In Stock
-                </span>
+                {product.quantity < 1 ? (
+                  <>
+                    <div className='text-sm flex text-red-600 font-medium'>
+                      <span className="ml-2">Out of Stock</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className='text-sm text-green-600 font-medium'>
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='h-4 w-4 inline mr-1'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M5 13l4 4L19 7'
+                        />
+                      </svg>
+                      In Stock
+                    </span>
+                  </>
+                )}
               </div>
 
               {/* Price with Discount Badge - Fixed 10% off */}
@@ -832,57 +844,80 @@ const ViewProduct = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className='flex flex-col sm:flex-row gap-3 mb-8'>
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => addToCart(id, quantity)}
-                  className='flex-1 bg-yellow-400 hover:bg-yellow-500 py-3 px-6 font-medium shadow-md flex items-center justify-center gap-2 transition-colors'
-                >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-5 w-5'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
+              {product.quantity < 1 ? (
+                <>
+                  <div className='flex flex-col sm:flex-row gap-3 mb-8'>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      disabled
+                      className='flex-1 bg-gray-400 cursor-not-allowed py-3 px-6 font-medium shadow-md flex items-center justify-center gap-2 transition-colors'
+                    >
+                      <CgUnavailable size={20} />
+                      Not Available
+                    </motion.button>
+                    <ShareIcon
+                      url={window.location.href}
+                      title={product.title}
+                      className='flex-1'
                     />
-                  </svg>
-                  Add to Cart
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleCheckout}
-                  className='flex-1 bg-orange-500 hover:bg-orange-600 py-3 px-6 font-medium text-white shadow-md flex items-center justify-center gap-2 transition-colors'
-                >
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    className='h-5 w-5'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className='flex flex-col sm:flex-row gap-3 mb-8'>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => addToCart(id, quantity)}
+                      className='flex-1 bg-yellow-400 hover:bg-yellow-500 py-3 px-6 font-medium shadow-md flex items-center justify-center gap-2 transition-colors'
+                    >
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='h-5 w-5'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'
+                        />
+                      </svg>
+                      Add to Cart
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleCheckout}
+                      className='flex-1 bg-orange-500 hover:bg-orange-600 py-3 px-6 font-medium text-white shadow-md flex items-center justify-center gap-2 transition-colors'
+                    >
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        className='h-5 w-5'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
+                        />
+                      </svg>
+                      Buy Now
+                    </motion.button>
+                    <ShareIcon
+                      url={window.location.href}
+                      title={product.title}
+                      className='flex-1'
                     />
-                  </svg>
-                  Buy Now
-                </motion.button>
-                <ShareIcon
-                  url={window.location.href}
-                  title={product.title}
-                  className='flex-1'
-                />
-              </div>
+                  </div>
+                </>
+              )}
 
               {/* Delivery Estimate */}
               <div className='border-t border-gray-200 pt-4 mb-6'>

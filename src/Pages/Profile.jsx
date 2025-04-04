@@ -25,7 +25,7 @@ const Profile = () => {
   const [rateColor, setRateColor] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
-
+  const [deliveryCharge, setDeliveryCharge] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [formData, setFormData] = useState({
@@ -63,6 +63,12 @@ const Profile = () => {
         });
 
         const userData = response.data.user;
+        if (
+          userData.address[0].state == 'Tamil Nadu' ||
+          userData.address[0].state == 'tamil nadu'
+        ) {
+          setDeliveryCharge(true);
+        }
 
         // Extract address details if available
         const addressDetails =
@@ -284,7 +290,7 @@ const Profile = () => {
     }
 
     acc[order.orderId].items.push(order);
-    acc[order.orderId].total += order.price * order.quantity;
+    acc[order.orderId].total += order.price;
 
     return acc;
   }, {});
@@ -660,7 +666,7 @@ const Profile = () => {
                                     </p>
                                   </div>
                                   <p className='text-gray-800 font-medium'>
-                                    ₹{(item.price * item.quantity).toFixed(2)}
+                                    ₹{item.price.toFixed(2)}
                                   </p>
                                 </div>
                               </div>
@@ -674,7 +680,7 @@ const Profile = () => {
                             {order.items.length > 1 ? 's' : ''}
                           </p>
                           <p className='text-lg font-semibold text-gray-800'>
-                            Total: ₹{order.total.toFixed(2)}
+                            Total: ₹{order.total}
                           </p>
                         </div>
                         <div className='flex mt-7'>

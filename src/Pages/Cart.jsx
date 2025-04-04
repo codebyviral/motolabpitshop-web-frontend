@@ -30,6 +30,7 @@ const Cart = () => {
   const [error, setError] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(false);
+  const [quantity, setQuantity] = useState(null);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const [userDetails, setUserDetails] = useState({
     fullName: '',
@@ -96,35 +97,20 @@ const Cart = () => {
   // Handle quantity update
   const handleQuantityUpdate = async (id, action) => {
     try {
-      setIsUpdating(true);
-      const item = cartItems.find((item) => item._id === id);
-      const newQuantity =
-        action === 'increase'
-          ? item.quantity + 1
-          : Math.max(1, item.quantity - 1);
-
-      const { data } = await axios.put(
-        `${backendUrl}/api/get-user/update-cart-item`,
+      const res = await axios.put(
+        `${backendUrl}/api/product/cart/${userId}/${id}`,
         {
-          userId,
-          productId: id,
-          quantity: newQuantity,
+          action,
+          newQuantity: 1,
         },
       );
-
-      if (data.success) {
-        setCartItems((prevItems) =>
-          prevItems.map((item) =>
-            item._id === id ? { ...item, quantity: newQuantity } : item,
-          ),
-        );
-        toast.success('Quantity updated');
+      if (res.status === 200) {
+        toast.success(`Item Updated!`);
       }
+      await fetchCart();
     } catch (error) {
-      toast.error('Error updating quantity.');
-      console.log(`Error updating quantity: ${error}`);
-    } finally {
-      setIsUpdating(false);
+      if (error.status) toast.warn(`Not Enough Stock Available!`);
+      console.log(`Error handling quantity: ${error}`);
     }
   };
 
@@ -212,6 +198,9 @@ const Cart = () => {
       });
 
       if (checkoutResponse.status === 200) {
+        console.log(
+          `Razorpay Checkout Response ::: ${JSON.stringify(checkoutResponse)}`,
+        );
         const rzp_cart_purchase_id = checkoutResponse.data.order.id;
         localStorage.setItem('rzp_cart_oid', rzp_cart_purchase_id);
         const userDetailsResponse = isLoggedIn ? await getUserDetails() : null;
@@ -271,7 +260,9 @@ const Cart = () => {
           window.location.reload();
         });
         razor.on('close', function () {
-          toast.info('Payment window closed. Please do not go back or refresh.',);
+          toast.info(
+            'Payment window closed. Please do not go back or refresh.',
+          );
         });
       }
     } catch (error) {
@@ -288,17 +279,18 @@ const Cart = () => {
       const productItems = cartItems.map((product) => ({
         product: product, // Extracting product ID
         quantity: product.quantity,
-        price: product.price * product.quantity + deliveryPrice,
+        price: product.price * product.quantity,
       }));
 
       console.log('productItems', productItems);
-
+      let shippingCharges = deliveryCharge ? 150 : 0;
       const orderData = {
         userId: localStorage.getItem('userId'),
         razorpayOrderId: await localStorage.getItem('rzp_cart_oid'),
         phoneNumber: userDetails.phone,
         shippingaddress: userDetails.address,
-        items: productItems, // Assigning the formatted array
+        items: productItems,
+        deliveryCharge: shippingCharges, // Assigning the formatted array
       };
 
       const customerOrderResponse = await axios.post(
