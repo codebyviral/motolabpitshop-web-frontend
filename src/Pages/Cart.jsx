@@ -106,10 +106,10 @@ const Cart = () => {
       );
       if (res.status === 200) {
         toast.success(`Item Updated!`);
-      } 
+      }
       await fetchCart();
     } catch (error) {
-      if(error.status) toast.error(`Not Enough Stock Available!`)
+      if (error.status) toast.warn(`Not Enough Stock Available!`);
       console.log(`Error handling quantity: ${error}`);
     }
   };
