@@ -23,6 +23,7 @@ const Profile = () => {
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [deliveryCharge, setDeliveryCharge] = useState(false);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,6 +45,9 @@ const Profile = () => {
   const backendUrl = import.meta.env.VITE_BACKEND;
 
   useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      navigate('/');
+    }
     window.scrollTo(0, 0);
   }, []);
 
@@ -55,73 +59,108 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         setLoadingUser(true);
-        const response = await axios.get(`${backendUrl}/api/auth/user`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
 
-        const userData = response.data.user;
-        if (
-          userData.address[0].state == 'Tamil Nadu' ||
-          userData.address[0].state == 'tamil nadu'
-        ) {
-          setDeliveryCharge(true);
+        // Validate essential items before making the request
+        const userId = localStorage.getItem('userId');
+        if (!userId || !token) {
+          toast.error('Authentication required');
+          return;
         }
 
-        // Extract address details if available
-        const addressDetails =
-          userData.address && userData.address.length > 0
-            ? userData.address[0]
-            : {
-                addressLine1: '',
-                addressLine2: '',
-                city: '',
-                state: '',
-                pinCode: '',
-              };
+        const response = await axios.get(
+          `${backendUrl}/api/get-user/?user=${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Cache-Control': 'no-cache', // Prevent caching issues
+            },
+          },
+        );
 
+        // Validate response structure
+        if (!response.data?.userFound) {
+          throw new Error('Invalid user data structure');
+        }
+
+        const userData = response.data.userFound;
+        console.log('User data:', userData); // Debug log
+
+        // Safely extract all fields with comprehensive fallbacks
+        const safeUserData = {
+          fullName: userData.fullName || '',
+          email: userData.email || '',
+          phoneNumber: userData.phoneNumber || userData.phone || '',
+          address: Array.isArray(userData.address) ? userData.address : [],
+          profileImage:
+            userData.profileImage || `${backendUrl}/api/placeholder/100/100`,
+          isVerified: Boolean(userData.isVerified),
+        };
+
+        // Set user state with validated data
         setUser({
-          name: userData.fullName || '',
-          email: userData.email || '',
-          phone: userData.phoneNumber || '',
-          address: userData.address || [],
-          profileImage: userData.profileImage || '/api/placeholder/100/100',
-          isVerified: userData.isVerified,
+          name: safeUserData.fullName,
+          email: safeUserData.email,
+          phone: safeUserData.phoneNumber,
+          address: safeUserData.address,
+          profileImage: safeUserData.profileImage,
+          isVerified: safeUserData.isVerified,
         });
 
+        // Set form data
         setFormData({
-          name: userData.fullName || '',
-          email: userData.email || '',
-          phone: userData.phoneNumber || '',
+          name: safeUserData.fullName,
+          email: safeUserData.email,
+          phone: safeUserData.phoneNumber,
         });
+
+        // Handle address with proper fallbacks
+        const primaryAddress = safeUserData.address[0] || {};
+        const addressDefaults = {
+          addressLine1: '',
+          addressLine2: '',
+          city: '',
+          state: '',
+          pinCode: '',
+          phone: safeUserData.phoneNumber,
+        };
 
         setAddressData({
-          addressLine1: addressDetails.addressLine1 || '',
-          addressLine2: addressDetails.addressLine2 || '',
-          city: addressDetails.city || '',
-          state: addressDetails.state || '',
-          pinCode: addressDetails.pinCode || '',
-          phone: userData.phone || '',
+          ...addressDefaults,
+          ...primaryAddress,
+          phone: primaryAddress.phone || safeUserData.phoneNumber,
         });
-        if (
-          addressDetails.state == 'tamil nadu' ||
-          addressDetails.state == 'Tamil Nadu'
-        ) {
-          setDeliveryCharge(false);
-        } else {
-          setDeliveryCharge(true);
-        }
+
+        // Handle delivery charge logic more robustly
+        const userState = (primaryAddress.state || '').toString().toLowerCase();
+        setDeliveryCharge(!['tamil nadu', 'tamilnadu'].includes(userState));
       } catch (error) {
-        console.error('Error fetching user:', error);
-        toast.error('Failed to load user data');
+        console.error(
+          'Error fetching user:',
+          error.response?.data || error.message,
+        );
+
+        // Differentiate between different error types
+        if (error.response?.status === 401) {
+          toast.error('Session expired. Please login again.');
+          LogoutUser();
+          navigate('/login');
+        } else {
+          toast.error(error.response?.data?.msg || 'Failed to load user data');
+        }
       } finally {
         setLoadingUser(false);
       }
     };
 
+    // Only fetch if we have a token
     if (token) {
       fetchUser();
+    } else {
+      // Handle case where token is missing
+      toast.error('Authentication required');
+      navigate('/login');
     }
-  }, [token]);
+  }, [token, backendUrl, navigate, LogoutUser]); // Added dependencies
 
   ///////////////////////////////////
   ///// Fetch User Orders //////////
@@ -294,7 +333,7 @@ const Profile = () => {
     }
 
     acc[order.orderId].items.push(order);
-    acc[order.orderId].total += order.price;
+    acc[order.orderId].total += order.price * order.quantity;
 
     return acc;
   }, {});
@@ -670,7 +709,7 @@ const Profile = () => {
                                     </p>
                                   </div>
                                   <p className='text-gray-800 font-medium'>
-                                    ₹{item.price.toFixed(2)}
+                                    ₹{(item.price * item.quantity).toFixed(2)}
                                   </p>
                                 </div>
                               </div>
