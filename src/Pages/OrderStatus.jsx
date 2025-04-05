@@ -50,10 +50,15 @@ const OrderStatus = () => {
     try {
       const response = await axios.put(
         `${backendUrl}/api/product/${productId}/rate`,
-        { userId: localStorage.getItem('userId'), newRating },
+        {
+          userId: localStorage.getItem('userId'),
+          newRating,
+        },
       );
 
-      if (response.data.success) {
+      console.log('submitRating', response);
+
+      if (response.status === 200) {
         setUserRatings((prev) => ({
           ...prev,
           [productId]: newRating,
@@ -72,6 +77,7 @@ const OrderStatus = () => {
             }
             return item;
           });
+
           return {
             ...prev,
             items: updatedItems,
@@ -79,12 +85,14 @@ const OrderStatus = () => {
         });
 
         toast.success(`Rating submitted successfully!`);
-      } else {
-        toast.error('Failed to submit rating');
       }
     } catch (error) {
-      console.error('Error submitting rating:', error);
-      toast.error('Failed to submit rating');
+      if (error.response?.status === 409) {
+        toast.warn(`You have already rated this product`);
+      } else {
+        console.error('Error submitting rating:', error);
+        toast.error('Failed to submit rating');
+      }
     }
   };
 
