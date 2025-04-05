@@ -72,7 +72,6 @@ const Profile = () => {
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Cache-Control': 'no-cache', // Prevent caching issues
             },
           },
         );
