@@ -29,6 +29,7 @@ const ViewProduct = () => {
   const [error, setError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState(true);
+  const [guestDeliveryCharge, setGuestDeliveryCharge] = useState(false);
   const [newOrderId, setNewOrderId] = useState('');
 
   ////////////////////////////////////////////////////////////////
@@ -124,14 +125,27 @@ const ViewProduct = () => {
   //                  razorpay payment gateway                  //
   ////////////////////////////////////////////////////////////////
 
-  const initiateRazorpayCheckout = async (userInfo = null) => {
+  const initiateRazorpayCheckout = async (
+    userInfo = null,
+    guestDeliveryCharge = null,
+  ) => {
     console.log(`userDetails:`, userDetails);
     if (!product) return toast.error(`Product not found`);
     try {
       const {
         data: { key },
       } = await axios.get(`${backendUrl}/api/get-key`);
-      const deliveryPrice = deliveryCharge ? 150 : 0;
+
+      // Use parameter if provided, otherwise use state
+      const deliveryPrice =
+        guestDeliveryCharge !== null
+          ? guestDeliveryCharge
+            ? 150
+            : 0
+          : deliveryCharge
+          ? 150
+          : 0;
+
       const checkoutResponse = await axios.post(`${backendUrl}/api/checkout`, {
         amount: product.price * quantity + deliveryPrice,
       });
@@ -304,9 +318,16 @@ const ViewProduct = () => {
 
   const placeOrder = async (formData) => {
     try {
-      const guestDeliveryCharge = formData.state.trim().toLowerCase() === 'tamil nadu';
+      const guestDeliveryCharge =
+        (await formData.state.trim().toLowerCase()) === 'tamil nadu';
+      console.log(
+        '[DEBUG] Delivery charge from guest order func: ',
+        formData.state.trim().toLowerCase() === 'tamil nadu',
+      );
       const isFreeDelivery = guestDeliveryCharge;
-      const totalAmount =  product.price * quantity;
+      setDeliveryCharge(!isFreeDelivery);
+      console.log('[DEBUG] UPDATED DELIVERY CHARGE STATE', deliveryCharge);
+      const totalAmount = product.price * quantity;
       console.log(`[DEBUG] DELIVERY CHARGE: ${guestDeliveryCharge}`);
       console.log(`[DEBUG] TOTAL AMOUNT: ${totalAmount}`);
 
@@ -349,8 +370,13 @@ const ViewProduct = () => {
         ...formDataFromModal.address,
       };
 
+      // Determine delivery charge FIRST
+      const isTamilNadu =
+        formattedData.state.trim().toLowerCase() === 'tamil nadu';
+      const isFreeDelivery = isTamilNadu;
+
       await placeOrder(formattedData);
-      initiateRazorpayCheckout(formattedData);
+      initiateRazorpayCheckout(formattedData, !isFreeDelivery);
       setIsModalOpen(false);
       toast.success('Redirecting to payment gateway...');
     } catch (error) {
@@ -694,7 +720,7 @@ const ViewProduct = () => {
                 {product.quantity < 1 ? (
                   <>
                     <div className='text-sm flex text-red-600 font-medium'>
-                      <span className="ml-2">Out of Stock</span>
+                      <span className='ml-2'>Out of Stock</span>
                     </div>
                   </>
                 ) : (
