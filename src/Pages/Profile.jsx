@@ -20,11 +20,9 @@ const Profile = () => {
     isVerified: false,
   });
   const [userOrders, setUserOrders] = useState([]);
-  const [ratings, setRatings] = useState({}); // { orderId1: rating1, orderId2: rating2 }
-  const [hoverStates, setHoverStates] = useState({}); // { orderId1: hoverRating1, orderId2: hoverRating2 }
-  const [rateColor, setRateColor] = useState(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [deliveryCharge, setDeliveryCharge] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
@@ -47,6 +45,9 @@ const Profile = () => {
   const backendUrl = import.meta.env.VITE_BACKEND;
 
   useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      navigate('/');
+    }
     window.scrollTo(0, 0);
   }, []);
 
@@ -99,6 +100,14 @@ const Profile = () => {
           pinCode: addressDetails.pinCode || '',
           phone: userData.phone || '',
         });
+        if (
+          addressDetails.state == 'tamil nadu' ||
+          addressDetails.state == 'Tamil Nadu'
+        ) {
+          setDeliveryCharge(false);
+        } else {
+          setDeliveryCharge(true);
+        }
       } catch (error) {
         console.error('Error fetching user:', error);
         toast.error('Failed to load user data');
@@ -126,7 +135,6 @@ const Profile = () => {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
-
         if (response.data && response.data.userOrders) {
           setUserOrders(response.data.userOrders);
         }
@@ -674,52 +682,11 @@ const Profile = () => {
                             {order.items.length > 1 ? 's' : ''}
                           </p>
                           <p className='text-lg font-semibold text-gray-800'>
-                            Total: ₹{order.total.toFixed(2)}
+                            Total: ₹
+                            {(order.total + (deliveryCharge ? 150 : 0)).toFixed(
+                              2,
+                            )}
                           </p>
-                        </div>
-                        <div className='flex mt-7'>
-                          {[...Array(5)].map((star, index) => {
-                            const currentRate = index + 1;
-                            return (
-                              <label key={index}>
-                                <input
-                                  type='radio'
-                                  name={`rate-${order.id}`} // Make name unique per order
-                                  value={currentRate}
-                                  onClick={() => {
-                                    setRatings((prev) => ({
-                                      ...prev,
-                                      [order.id]: currentRate,
-                                    }));
-                                  }}
-                                  style={{ display: 'none' }}
-                                />
-                                <FaStar
-                                  size={20}
-                                  color={
-                                    currentRate <=
-                                    (hoverStates[order.id] ||
-                                      ratings[order.id] ||
-                                      0)
-                                      ? 'red'
-                                      : 'grey'
-                                  }
-                                  onMouseEnter={() => {
-                                    setHoverStates((prev) => ({
-                                      ...prev,
-                                      [order.id]: currentRate,
-                                    }));
-                                  }}
-                                  onMouseLeave={() => {
-                                    setHoverStates((prev) => ({
-                                      ...prev,
-                                      [order.id]: 0,
-                                    }));
-                                  }}
-                                />
-                              </label>
-                            );
-                          })}
                         </div>
                       </div>
                     </div>
