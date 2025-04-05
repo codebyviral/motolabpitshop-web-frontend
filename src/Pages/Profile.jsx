@@ -44,9 +44,6 @@ const Profile = () => {
   const backendUrl = import.meta.env.VITE_BACKEND;
 
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
-      navigate('/');
-    }
     window.scrollTo(0, 0);
   }, []);
 
