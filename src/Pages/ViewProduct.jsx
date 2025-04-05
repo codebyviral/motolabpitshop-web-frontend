@@ -207,32 +207,49 @@ const ViewProduct = () => {
   ////////////////////////////////////////////////////////////////
 
   const createCustomerOrder = async () => {
-    let productItems = [];
-    productItems.push(product);
-    const deliveryPrice = deliveryCharge ? 150 : 0;
     try {
-      console.log('productItems', product);
+      const deliveryPrice = deliveryCharge ? 150 : 0;
+      const itemQuantity = Number(quantity) || 1;
+
       const orderData = {
         userId: localStorage.getItem('userId'),
         razorpayOrderId: await localStorage.getItem('rzp_order_id'),
-        phoneNumber: userDetails.phone,
-        shippingaddress: userDetails.address,
+        phoneNumber: userDetails.phone || '',
+        shippingaddress: userDetails.address || '',
+        deliveryCharge: deliveryPrice, // Just the fee, not added to item price
         items: [
           {
-            product: product._id, // Send just the product ID
-            quantity: quantity,
-            price: product.price * quantity + deliveryPrice,
+            product: product._id,
+            quantity: itemQuantity,
+            // no price sent
           },
         ],
+        // no totalAmount sent — backend will calculate
       };
+
+      console.log('Submitting order data:', orderData);
+
       const customerOrderResponse = await axios.post(
         `${backendUrl}/api/order/create`,
         orderData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
       );
-      // updateOrderId(customerOrderResponse.data.order.id);
-      setNewOrderId(customerOrderResponse.data.order.id);
+
+      if (customerOrderResponse.data.success) {
+        setNewOrderId(customerOrderResponse.data.order._id);
+        return customerOrderResponse.data.order;
+      } else {
+        throw new Error(
+          customerOrderResponse.data.message || 'Order creation failed',
+        );
+      }
     } catch (error) {
-      console.log(`Error creating customer order: ${error}`);
+      console.error('Error creating customer order:', error);
+      throw error;
     }
   };
 
@@ -287,19 +304,21 @@ const ViewProduct = () => {
 
   const placeOrder = async (formData) => {
     try {
+      const guestDeliveryCharge = formData.state.trim().toLowerCase() === 'tamil nadu';
+      const isFreeDelivery = guestDeliveryCharge;
+      const totalAmount =  product.price * quantity;
+      console.log(`[DEBUG] DELIVERY CHARGE: ${guestDeliveryCharge}`);
+      console.log(`[DEBUG] TOTAL AMOUNT: ${totalAmount}`);
+
+      console.log(`[DEBUG] GUEST DELIVERY CHARGE: ${guestDeliveryCharge}`);
+      const shippingAddress = `${formData.addressLine1}, ${formData.city}, ${formData.state}, ${formData.pinCode}`; // Corrected to pinCode
       const order_response = await axios.post(
         `${backendUrl}/api/order/create-guest-order`,
         {
           fullName: formData.fullName,
           email: formData.email,
           phoneNumber: formData.phoneNumber,
-          address: {
-            addressLine1: formData.addressLine1,
-            addressLine2: formData.addressLine2,
-            city: formData.city,
-            state: formData.state,
-            pinCode: formData.pincode,
-          },
+          address: shippingAddress,
           items: [
             {
               product: product._id,
@@ -307,8 +326,8 @@ const ViewProduct = () => {
               price: product.price,
             },
           ],
-          totalAmount: product.price * quantity,
-          shippingAddress: `${formData.addressLine1}, ${formData.city}, ${formData.state}, ${formData.pincode}`,
+          totalAmount,
+          isFreeDelivery,
         },
       );
       console.log('Order created:', order_response.data);
@@ -322,17 +341,12 @@ const ViewProduct = () => {
   //                 guest checkout form submit                 //
   ////////////////////////////////////////////////////////////////
 
-  const handleFormSubmit = async (formData) => {
+  const handleFormSubmit = async (formDataFromModal) => {
     try {
+      // Flatten the address fields into the top level
       const formattedData = {
-        ...formData,
-        address: {
-          addressLine1: formData.addressLine1,
-          addressLine2: formData.addressLine2,
-          city: formData.city,
-          state: formData.state,
-          pinCode: formData.pincode,
-        },
+        ...formDataFromModal,
+        ...formDataFromModal.address,
       };
 
       await placeOrder(formattedData);
