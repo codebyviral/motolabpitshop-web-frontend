@@ -59,11 +59,11 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         setLoadingUser(true);
-        const response = await axios.get(`${backendUrl}/api/auth/user`, {
+        const response = await axios.get(`${backendUrl}/api/get-user/?user=${localStorage.getItem("userId")}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const userData = response.data.user;
+        const userData = response.data.userFound;
 
         // Extract address details if available
         const addressDetails =
