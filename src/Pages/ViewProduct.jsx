@@ -338,6 +338,7 @@ const ViewProduct = () => {
         {
           fullName: formData.fullName,
           email: formData.email,
+          password: formData.password,
           phoneNumber: formData.phoneNumber,
           address: shippingAddress,
           items: [

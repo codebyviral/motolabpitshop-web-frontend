@@ -200,6 +200,34 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
               />
             </div>
 
+            {/* Password */}
+            <div>
+              <div className='flex items-center justify-between'>
+                <label
+                  htmlFor='password'
+                  className='block text-sm font-medium text-gray-700 mb-1'
+                >
+                  Password
+                </label>
+                {errors.password && (
+                  <span className='text-xs text-red-600'>
+                    {errors.password}
+                  </span>
+                )}
+              </div>
+              <input
+                type='password'
+                id='password'
+                name='password'
+                value={formData.password}
+                onChange={handleChange}
+                className={`block w-full rounded-none-lg border ${
+                  errors.password ? 'border-red-500' : 'border-gray-300'
+                } px-4 py-2.5 text-sm shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200`}
+                placeholder='Create a password'
+              />
+            </div>
+
             {/* Phone */}
             <div>
               <div className='flex items-center justify-between'>
