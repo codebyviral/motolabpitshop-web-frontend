@@ -382,7 +382,7 @@ const ViewProduct = () => {
       toast.success('Redirecting to payment gateway...');
     } catch (error) {
       console.error('Error during form submission:', error);
-      toast.error('Failed to process the order. Please try again.');
+      toast.error('Couldn’t place the order. You may already have an account or there was an error — try logging in and ordering again.');
     }
   };
 
