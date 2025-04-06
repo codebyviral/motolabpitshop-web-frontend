@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuthContext } from "../context/AuthContext";
-
+import { Link } from "react-router-dom";
 const LoginForm = () => {
   const navigate = useNavigate();
 
@@ -147,12 +147,12 @@ const LoginForm = () => {
                 />
                 Remember me
               </label>
-              <a
-                href="#"
+              <Link
+                to="/password-auth"
                 className="text-yellow-500 text-sm font-medium hover:text-yellow-600 hover:underline"
               >
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             {/* Login Button with Loading State */}
