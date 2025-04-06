@@ -219,6 +219,7 @@ const CheckoutModal = ({ isOpen, onClose, onSubmit, product }) => {
                 type='password'
                 id='password'
                 name='password'
+                required
                 value={formData.password}
                 onChange={handleChange}
                 className={`block w-full rounded-none-lg border ${
