@@ -14,7 +14,7 @@ import NotFound from "./NotFound";
 import Verification from "./Verification";
 import OrderStatus from "./OrderStatus";
 import Cart from "./Cart";
-
+import PasswordAuth from "./PasswordAuth";
 export {
   Home,
   LoginForm,
@@ -32,4 +32,5 @@ export {
   ContactMethods,
   TermsAndConditions,
   PrivacyPolicy,
+  PasswordAuth
 };

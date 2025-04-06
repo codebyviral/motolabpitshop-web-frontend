@@ -19,6 +19,7 @@ import {
   NotFound,
   Verification,
   OrderStatus,
+  PasswordAuth
 } from './Pages/index.js';
 import { ToastContainer } from 'react-toastify';
 import { useEffect } from 'react';
@@ -59,6 +60,7 @@ function App() {
           <Route path='/verify-account' element={<Verification />} />
           <Route path='/order-status/:orderId' element={<OrderStatus />} />
           <Route path='/my-cart' element={<Cart />} />
+          <Route path='/password-auth' element={<PasswordAuth />} />
         </Routes>
       </div>
     </>
