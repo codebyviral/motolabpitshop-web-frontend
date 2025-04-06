@@ -32,13 +32,13 @@ const Footer = () => {
 
             <div className="flex flex-col items-start mt-5 space-y-2">
               <a
-                href="#"
+                href="/"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Home
               </a>
               <a
-                href="#"
+                href="/"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Shop
@@ -50,12 +50,6 @@ const Footer = () => {
                 About Us
               </a>
               <a
-                href="#"
-                className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
-              >
-                Blog
-              </a>
-              <a
                 href="/ContactMethods"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
@@ -64,36 +58,36 @@ const Footer = () => {
             </div>
           </div>
 
-          <div>
+          <div className="">
             <p className="font-bold text-white">Categories</p>
 
             <div className="flex flex-col items-start mt-5 space-y-2">
               <a
-                href="#"
+                href="/"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Helmets
               </a>
               <a
-                href="#"
+                href="/"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Jackets
               </a>
               <a
-                href="#"
+                href="/"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Gloves
               </a>
               <a
-                href="#"
+                href="/"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Boots
               </a>
               <a
-                href="#"
+                href="/"
                 className="text-gray-300 transition-colors duration-300 hover:text-yellow-400 hover:underline"
               >
                 Accessories
@@ -105,13 +99,13 @@ const Footer = () => {
         <hr className="my-6 border-gray-700 md:my-8" />
 
         <div className="flex flex-col items-center justify-between md:flex-row">
-          <a href="#" className="mb-4 md:mb-0">
+          <a href="/" className="mb-4 md:mb-0">
             <span className="text-2xl font-bold text-white">MotoLab</span>
           </a>
 
           <div className="flex items-center space-x-4">
             <a
-              href="#"
+              href="/"
               className="text-gray-300 transition-colors duration-300 hover:text-yellow-400"
               aria-label="Facebook"
             >
@@ -126,7 +120,7 @@ const Footer = () => {
             </a>
 
             <a
-              href="#"
+              href="https://www.instagram.com/thameen_pvt?igsh=bHJsbGxrNXcxYWtr"
               className="text-gray-300 transition-colors duration-300 hover:text-yellow-400"
               aria-label="Instagram"
             >
@@ -141,7 +135,7 @@ const Footer = () => {
             </a>
 
             <a
-              href="#"
+              href="/"
               className="text-gray-300 transition-colors duration-300 hover:text-yellow-400"
               aria-label="Twitter"
             >
@@ -163,7 +157,7 @@ const Footer = () => {
                 href="/TermsAndConditions "
                 className="text-gray-100 transition-colors duration-800 hover:text-yellow-200 hover:underline"
               >
-                TermsAndConditions
+                Terms & Conditions
               </a>
         </div>
         

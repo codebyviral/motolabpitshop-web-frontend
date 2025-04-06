@@ -206,14 +206,11 @@ const Header = () => {
             <a href='/' className='font-medium'>
               Home
             </a>
-            <a href='#' className='font-medium'>
+            <a href='/view-all-products' className='font-medium'>
               Shop
             </a>
             <a href='/about-us' className='font-medium'>
               About
-            </a>
-            <a href='#' className='font-medium'>
-              Blog
             </a>
             <a href='/ContactMethods' className='font-medium'>
               Contact

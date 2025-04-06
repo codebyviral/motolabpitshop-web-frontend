@@ -476,7 +476,7 @@ const Cart = () => {
               Your Shopping Cart
             </h1>
             {cartItems.length > 0 && (
-              <span className='ml-4 bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded-full'>
+              <span className='ml-4 bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded-none-full'>
                 {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
               </span>
             )}
@@ -488,11 +488,11 @@ const Cart = () => {
               <p className='text-gray-600'>Loading your cart...</p>
             </div>
           ) : error ? (
-            <div className='text-center p-8 bg-white rounded-lg shadow-sm border border-gray-200 max-w-md mx-auto'>
+            <div className='text-center p-8 bg-white rounded-none-lg shadow-sm border border-gray-200 max-w-md mx-auto'>
               <div className='text-red-500 mb-4 text-lg'>{error}</div>
               <button
                 onClick={fetchCart}
-                className='flex items-center justify-center bg-yellow-400 text-black font-medium px-6 py-3 rounded-lg hover:bg-yellow-500 transition duration-300 shadow-sm'
+                className='flex items-center justify-center bg-yellow-400 text-black font-medium px-6 py-3 rounded-none-lg hover:bg-yellow-500 transition duration-300 shadow-sm'
               >
                 <RefreshCw className='mr-2 h-5 w-5' /> Try Again
               </button>
@@ -501,14 +501,14 @@ const Cart = () => {
             <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
               {/* Cart Items - Takes up 2/3 of the space on large screens */}
               <div className='lg:col-span-2 space-y-6'>
-                <div className='bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200'>
+                <div className='bg-white shadow-sm rounded-none-xl overflow-hidden border border-gray-200'>
                   <div className='p-6'>
                     <h2 className='text-xl font-semibold text-gray-900 mb-6 flex items-center'>
                       Items in Your Cart
                     </h2>
                     {isUpdating && (
-                      <div className='absolute inset-0 bg-black bg-opacity-10 flex justify-center items-center rounded-xl z-10'>
-                        <div className='bg-white p-4 rounded-full shadow-lg'>
+                      <div className='absolute inset-0 bg-black bg-opacity-10 flex justify-center items-center rounded-none-xl z-10'>
+                        <div className='bg-white p-4 rounded-none-full shadow-lg'>
                           <Loader className='animate-spin h-8 w-8 text-yellow-500' />
                         </div>
                       </div>
@@ -527,7 +527,7 @@ const Cart = () => {
                             {/* Image Container */}
                             <motion.div
                               whileHover={{ scale: 1.03 }}
-                              className='w-24 h-24 rounded-lg overflow-hidden mr-5 border border-gray-200 shadow-sm cursor-pointer'
+                              className='w-24 h-24 rounded-none-lg overflow-hidden mr-5 border border-gray-200 shadow-sm cursor-pointer'
                               onClick={() =>
                                 navigate(`/view-product/${item._id}`)
                               }
@@ -577,7 +577,7 @@ const Cart = () => {
 
                           <div className='flex items-center w-full sm:w-auto justify-between sm:justify-end space-x-4'>
                             {/* Quantity Selector */}
-                            <div className='flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm'>
+                            <div className='flex items-center border border-gray-300 rounded-none-lg overflow-hidden bg-white shadow-sm'>
                               <button
                                 onClick={() =>
                                   handleQuantityUpdate(item._id, 'decrease')
@@ -610,7 +610,7 @@ const Cart = () => {
                               <button
                                 onClick={() => handleMoveToWishlist(item._id)}
                                 disabled={isUpdating}
-                                className='p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-full transition-colors'
+                                className='p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 rounded-none-full transition-colors'
                                 aria-label='Move to wishlist'
                                 title='Move to wishlist'
                               >
@@ -619,7 +619,7 @@ const Cart = () => {
                               <button
                                 onClick={() => handleRemove(item._id)}
                                 disabled={isUpdating}
-                                className='p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-full transition-colors'
+                                className='p-2 text-gray-500 hover:text-red-600 hover:bg-gray-100 rounded-none-full transition-colors'
                                 aria-label='Remove item'
                                 title='Remove item'
                               >
@@ -635,7 +635,7 @@ const Cart = () => {
                   {/* Delivery Information */}
                   <div className='border-t border-gray-200 px-6 py-4 bg-gray-50'>
                     <div className='flex items-start'>
-                      <div className='bg-yellow-100 p-2 rounded-full mr-3'>
+                      <div className='bg-yellow-100 p-2 rounded-none-full mr-3'>
                         <Truck className='w-5 h-5 text-yellow-600' />
                       </div>
                       <div>
@@ -672,8 +672,8 @@ const Cart = () => {
 
                 {/* Trust Badges */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div className='flex items-center p-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow'>
-                    <div className='bg-yellow-100 p-2 rounded-full mr-4'>
+                  <div className='flex items-center p-4 bg-white rounded-none-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow'>
+                    <div className='bg-yellow-100 p-2 rounded-none-full mr-4'>
                       <Shield className='w-6 h-6 text-yellow-600' />
                     </div>
                     <div>
@@ -685,8 +685,8 @@ const Cart = () => {
                       </p>
                     </div>
                   </div>
-                  <div className='flex items-center p-4 bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow'>
-                    <div className='bg-yellow-100 p-2 rounded-full mr-4'>
+                  <div className='flex items-center p-4 bg-white rounded-none-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow'>
+                    <div className='bg-yellow-100 p-2 rounded-none-full mr-4'>
                       <Truck className='w-6 h-6 text-yellow-600' />
                     </div>
                     <div>
@@ -703,7 +703,7 @@ const Cart = () => {
 
               {/* Order Summary - Takes up 1/3 of the space on large screens */}
               <div className='lg:col-span-1'>
-                <div className='bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 sticky top-4'>
+                <div className='bg-white shadow-sm rounded-none-xl overflow-hidden border border-gray-200 sticky top-4'>
                   <div className='p-6'>
                     <h2 className='text-xl font-semibold text-gray-900 mb-6 flex items-center'>
                       <CreditCard className='mr-2 text-yellow-500' size={20} />
@@ -762,7 +762,7 @@ const Cart = () => {
                       whileTap={{ scale: 0.98 }}
                       onClick={handleCheckout}
                       disabled={isProcessingCheckout}
-                      className='w-full bg-yellow-500 text-gray-900 py-3 rounded-lg font-bold hover:bg-yellow-600 transition duration-300 shadow-md flex items-center justify-center text-lg mb-4'
+                      className='w-full bg-yellow-500 text-gray-900 py-3 rounded-none-lg font-bold hover:bg-yellow-600 transition duration-300 shadow-md flex items-center justify-center text-lg mb-4'
                     >
                       {isProcessingCheckout ? (
                         <>
@@ -780,28 +780,28 @@ const Cart = () => {
                         We Accept
                       </h3>
                       <div className='flex flex-wrap gap-2'>
-                        <div className='w-12 h-8 bg-gray-100 rounded-md flex items-center justify-center'>
+                        <div className='w-12 h-8 bg-gray-100 rounded-none-md flex items-center justify-center'>
                           <img
                             src='https://i.ibb.co/Lhvt9d4F/download.png'
                             alt='Visa'
                             className='h-5'
                           />
                         </div>
-                        <div className='w-12 h-8 bg-gray-100 rounded-md flex items-center justify-center'>
+                        <div className='w-12 h-8 bg-gray-100 rounded-none-md flex items-center justify-center'>
                           <img
                             src='https://i.ibb.co/qF0MR6nb/image.png'
                             alt='Mastercard'
                             className='h-5'
                           />
                         </div>
-                        <div className='w-12 h-8 bg-gray-100 rounded-md flex items-center justify-center'>
+                        <div className='w-12 h-8 bg-gray-100 rounded-none-md flex items-center justify-center'>
                           <img
                             src='https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg'
                             alt='Google Pay'
                             className='h-5'
                           />
                         </div>
-                        <div className='w-12 h-8 bg-gray-100 rounded-md flex items-center justify-center'>
+                        <div className='w-12 h-8 bg-gray-100 rounded-none-md flex items-center justify-center'>
                           <span className='text-xs font-bold text-gray-700'>
                             UPI
                           </span>
@@ -824,10 +824,10 @@ const Cart = () => {
               </div>
             </div>
           ) : (
-            <div className='text-center bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 max-w-2xl mx-auto'>
+            <div className='text-center bg-white shadow-sm rounded-none-xl overflow-hidden border border-gray-200 max-w-2xl mx-auto'>
               <div className='p-12'>
                 <div className='flex justify-center mb-6'>
-                  <div className='w-32 h-32 bg-yellow-50 rounded-full flex items-center justify-center'>
+                  <div className='w-32 h-32 bg-yellow-50 rounded-none-full flex items-center justify-center'>
                     <ShoppingCart className='h-16 w-16 text-yellow-400' />
                   </div>
                 </div>
@@ -841,13 +841,13 @@ const Cart = () => {
                 <div className='flex flex-col sm:flex-row justify-center gap-4'>
                   <a
                     href='/view-all-products'
-                    className='inline-flex items-center justify-center bg-yellow-500 text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-yellow-600 transition duration-300 shadow-md'
+                    className='inline-flex items-center justify-center bg-yellow-500 text-gray-900 px-6 py-3 rounded-none-lg font-medium hover:bg-yellow-600 transition duration-300 shadow-md'
                   >
                     Browse Products
                   </a>
                   <a
                     href='/deals'
-                    className='inline-flex items-center justify-center bg-gray-100 text-gray-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-200 transition duration-300'
+                    className='inline-flex items-center justify-center bg-gray-100 text-gray-800 px-6 py-3 rounded-none-lg font-medium hover:bg-gray-200 transition duration-300'
                   >
                     View Special Offers
                   </a>
