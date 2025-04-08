@@ -382,7 +382,9 @@ const ViewProduct = () => {
       toast.success('Redirecting to payment gateway...');
     } catch (error) {
       console.error('Error during form submission:', error);
-      toast.error('Couldn’t place the order. You may already have an account or there was an error — try logging in and ordering again.');
+      toast.error(
+        'Couldn’t place the order. You may already have an account or there was an error — try logging in and ordering again.',
+      );
     }
   };
 
@@ -445,7 +447,7 @@ const ViewProduct = () => {
         });
       }
     } catch (error) {
-      toast.error('Failed to add item to cart');
+      toast.error('Add to cart failed. Are you logged in?');
       console.log(error);
     }
   };

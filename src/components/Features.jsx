@@ -1,5 +1,6 @@
 import React from "react";
 import { FaTruck, FaExchangeAlt, FaLock } from "react-icons/fa";
+import { VscWorkspaceTrusted } from "react-icons/vsc";
 
 const FeatureItem = ({ icon: Icon, title, description }) => (
   <div className="flex items-center mb-6 md:mb-0">
@@ -21,9 +22,9 @@ const Features = () => {
       description: "Delivery in Tamil Nadu",
     },
     {
-      icon: FaExchangeAlt,
-      title: "Easy Return",
-      description: "Get Return within 30 days",
+      icon: VscWorkspaceTrusted,
+      title: "Trusted Choice",
+      description: "Quality Assured",
     },
     {
       icon: FaLock,

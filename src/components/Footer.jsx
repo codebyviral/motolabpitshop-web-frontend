@@ -100,7 +100,7 @@ const Footer = () => {
 
         <div className="flex flex-col items-center justify-between md:flex-row">
           <a href="/" className="mb-4 md:mb-0">
-            <span className="text-2xl font-bold text-white">MotoLab</span>
+            <span className="text-2xl font-bold text-white">MotoLab PitShop</span>
           </a>
 
           <div className="flex items-center space-x-4">
